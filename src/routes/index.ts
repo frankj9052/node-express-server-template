@@ -1,10 +1,10 @@
-// 路由层
-
 import { Router } from "express";
-import { healthCheck } from "../controllers/health.controller";
+import publicRoute from "./public";
+import testRouter from "./test";
 
 const router = Router();
 
-router.get('/health', healthCheck);
+router.use('/public', publicRoute);
+router.use('/test', testRouter);
 
 export default router;

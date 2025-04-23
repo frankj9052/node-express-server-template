@@ -1,4 +1,3 @@
-// Express 初始化逻辑
 import express from "express";
 import cors from "cors";
 import routes from "./routes";

@@ -1,5 +1,3 @@
-// 服务器入口点
-
 import app from "./app";
 import { env } from "./config/env";
 
