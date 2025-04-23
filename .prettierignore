@@ -1,14 +1,43 @@
+# ① 编译输出目录（防止格式化打包产物）
 dist/
 build/
+
+# ② 依赖目录（体积大，无需格式化）
 node_modules/
+
+# ③ 日志文件和日志目录（仅供调试或记录，不应被格式化）
 *.log
 logs/
+
+# ④ 环境变量文件（可能包含敏感信息，避免格式化干扰）
 .env*
-!.env.example
+!.env.example  # 保留示例配置，方便开发者查看格式
+
+# ⑤ 缓存目录（如 Babel、eslint、vite、yarn、jest 等工具产生的缓存）
 .cache/
+
+# ⑥ 测试覆盖率结果（由工具自动生成）
 coverage/
 *.lcov
+
+# ⑦ IDE 配置目录（与代码无关，不格式化）
 .vscode/
 .idea/
+
+# ⑧ 临时文件夹（用于临时文件存储）
 tmp/
 temp/
+
+# Next.js 构建缓存（如使用 Next.js）
+.next/
+
+# Storybook 输出目录
+storybook-static/
+
+# Tailwind CSS JIT 缓存（某些配置方式）
+.tailwind-cache/
+
+# lock 文件（不应由 prettier 格式化）
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

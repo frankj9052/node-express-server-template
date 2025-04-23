@@ -1,6 +1,16 @@
 # Node modules
 node_modules/
 
+# husky 自动生成的 hook 目录
+.husky/_
+
+# lint-staged 和 prettier 不会自动创建这些文件，但你自己可能会手动加临时配置
+lint-staged.config.js
+
+# Lint / Prettier 缓存（某些工具可能使用）
+.eslintcache
+.prettiercache
+
 # TypeScript build output
 dist/
 build/
