@@ -1,6 +1,6 @@
-import { Router } from "express";
-import publicRoute from "./public";
-import testRouter from "./test";
+import { Router } from 'express';
+import publicRoute from './public';
+import testRouter from './test';
 
 const router = Router();
 
