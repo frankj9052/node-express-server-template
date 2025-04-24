@@ -21,8 +21,12 @@
     "cors": "^2.8.5",
     "dotenv-flow": "^4.1.0",
     "express": "^5.1.0",
+    "pg": "^8.15.5",
+    "reflect-metadata": "^0.2.2",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "typeorm": "^0.3.22",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
