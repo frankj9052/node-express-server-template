@@ -10,6 +10,16 @@ const baseSchema = z.object({
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   DATABASE_URL: z.string().optional(), // SaaS URL，如 Neon
   ENABLE_SEEDERS: z.string().default('true'),
+  REDIS_URL: z.string(),
+
+  // 新增: Session相关校验
+  SESSION_SECRET: z.string(), // 只要是非空字符串就行
+  SESSION_ENCRYPTION_KEY: z.string().regex(/^[0-9a-f]{64}$/, {
+    message: 'SESSION_ENCRYPTION_KEY must be a 64-character hex string (32 bytes)',
+  }),
+  SESSION_IV: z.string().regex(/^[0-9a-f]{32}$/, {
+    message: 'SESSION_IV must be a 32-character hex string (16 bytes)',
+  }),
 });
 
 // 如果没有 DATABASE_URL，就强制要求 host + user + db
