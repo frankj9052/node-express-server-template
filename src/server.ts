@@ -1,12 +1,15 @@
 import app from './app';
-import { env } from './config/env';
 import { AppDataSource } from './config/data-source';
+import { env } from './config/env';
+import { connectDatabase } from './utils/connectDatabase';
 
 async function startServer() {
   try {
-    console.log('🔌 Connecting to database...');
-    await AppDataSource.initialize();
-    console.log('✅ Database connected successfully.');
+    console.log('🚀 Starting server...');
+
+    await connectDatabase({
+      dataSource: AppDataSource,
+    });
 
     app.listen(Number(env.PORT), () => {
       console.log(`🚀 Server running at http://localhost:${env.PORT}`);

@@ -9,6 +9,7 @@ const baseSchema = z.object({
   JWT_SECRET: z.string(),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   DATABASE_URL: z.string().optional(), // SaaS URL，如 Neon
+  ENABLE_SEEDERS: z.string().default('true'),
 });
 
 // 如果没有 DATABASE_URL，就强制要求 host + user + db
