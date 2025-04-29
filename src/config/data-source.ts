@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import path from 'path';
 import { env } from './env';
 import { getCurrentDirname } from '../utils/path';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 const __dirname = getCurrentDirname(import.meta.url);
 const isProduction = env.NODE_ENV === 'production';
@@ -34,6 +35,7 @@ const options = {
   // 匹配 .ts/.js 实体和迁移文件（兼容编译产物）
   entities: [path.resolve(__dirname, '../database/entities/**/*.{ts,js}')],
   migrations: [path.resolve(__dirname, '../database/migrations/**/*.{ts,js}')],
+  namingStrategy: new SnakeNamingStrategy(),
   // 连接池优化（pg-pool 参数）
   extra: {
     max: 50, // 最大连接数

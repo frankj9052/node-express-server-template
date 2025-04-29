@@ -19,7 +19,8 @@
     "db:create": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:create -d src/data-source.ts",
     "db:drop": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:drop -d src/data-source.ts",
     "seed:create": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:create",
-    "seed:run": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d src/config/data-source.ts"
+    "seed:run": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d src/config/data-source.ts",
+    "generate:tree": "tsx ./scripts/generateTree.ts"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +41,7 @@
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.22",
     "typeorm-extension": "^3.7.1",
+    "typeorm-naming-strategies": "^4.1.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {

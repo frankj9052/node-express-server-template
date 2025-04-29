@@ -17,7 +17,9 @@ export default [
     languageOptions: {
       parser,
       parserOptions: {
-        project: ['./tsconfig.json'],
+        // project: ['./tsconfig.json'],
+        project: file =>
+          file.startsWith('scripts/') ? ['./tsconfig.scripts.json'] : ['./tsconfig.json'],
         tsconfigRootDir: process.cwd(),
         sourceType: 'module',
       },
