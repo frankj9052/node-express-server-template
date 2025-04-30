@@ -9,8 +9,13 @@ const baseSchema = z.object({
   JWT_SECRET: z.string(),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   DATABASE_URL: z.string().optional(), // SaaS URL，如 Neon
+  DATABASE_SSL: z.string().default('true'),
   ENABLE_SEEDERS: z.string().default('true'),
   REDIS_URL: z.string(),
+  // 新增：pg-pool 配置
+  PG_POOL_MAX: z.string().default('50'),
+  PG_IDLE_MS: z.string().default('3000'),
+  PG_CONN_TIMEOUT_MS: z.string().default('2000'),
 
   // 新增: Session相关校验
   SESSION_SECRET: z.string(), // 只要是非空字符串就行

@@ -27,13 +27,23 @@
 │   │   └── test.controller.ts
 │   ├── database
 │   │   ├── entities
-│   │   │   └── User.ts
+│   │   │   ├── Action.ts
+│   │   │   ├── BaseEntity.ts
+│   │   │   ├── Organization.ts
+│   │   │   ├── Permission.ts
+│   │   │   ├── Resource.ts
+│   │   │   ├── Role.ts
+│   │   │   ├── RolePermission.ts
+│   │   │   ├── User.ts
+│   │   │   └── UserOrganizationRole.ts
 │   │   ├── factories
 │   │   ├── migrations
 │   │   └── seeds
 │   │       └── user.seeder.ts
 │   ├── enums
+│   │   ├── ActionScope.enum.ts
 │   │   ├── gender.enum.ts
+│   │   ├── honorific.enum.ts
 │   │   └── role.enum.ts
 │   ├── middlewares
 │   │   ├── authMiddleware.ts

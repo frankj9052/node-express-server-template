@@ -1,9 +1,10 @@
 import app from './app';
 import { AppDataSource } from './config/data-source';
 import { env } from './config/env';
+import { connectDatabase } from './infrastructure/database';
+import { connectRedis, redisClient } from './infrastructure/redis';
 import { sessionMiddleware } from './middlewares/sessionMiddleware';
-import { connectDatabase } from './utils/connectDatabase';
-import { connectRedis, redisClient } from './utils/connectRedis'; // ✅ 加上Redis连接
+
 import { Server } from 'http';
 
 let server: Server;

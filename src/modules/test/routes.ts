@@ -1,18 +1,17 @@
 import { Router } from 'express';
-import { connectionTest } from '../../controllers/test.controller';
+import { connectionTest } from './test.controller';
 
-const testRouter = Router();
+const router = Router();
 
 /**
  * @openapi
- * /api/v1test:
+ * /test:
  *   get:
- *     tags:
- *       - Test
- *     summary: 测试api是否有效
+ *     tags: [Test]
+ *     summary: 测试 API 是否存活
  *     responses:
  *       200:
- *         description: 成功返回状态
+ *         description: OK
  *         content:
  *           application/json:
  *             schema:
@@ -22,6 +21,8 @@ const testRouter = Router();
  *                   type: string
  *                   example: ok
  */
-testRouter.get('/', connectionTest);
+router.get('/test', connectionTest);
 
-export default testRouter;
+export function register(parent: Router) {
+  parent.use('/', router);
+}

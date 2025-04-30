@@ -1,6 +1,6 @@
 import { writeFileSync, readdirSync, statSync } from 'fs';
 import { resolve, relative } from 'path';
-import { getCurrentDirname } from '../src/utils/path'; // 你的封装工具
+import { getCurrentDirname } from '../src/modules/common/utils/path';
 
 // 当前脚本所在目录
 const __dirname = getCurrentDirname(import.meta.url);

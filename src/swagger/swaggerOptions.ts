@@ -11,12 +11,12 @@ export const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${env.PORT}/v1`,
-        description: '开发环境 - v1',
+        url: `http://localhost:${env.PORT}/`,
+        description: '开发环境',
       },
       {
-        url: 'https://your-domain.com/v1',
-        description: '生产环境 - v1',
+        url: 'https://your-domain.com/',
+        description: '生产环境',
       },
     ],
     components: {
@@ -34,5 +34,8 @@ export const swaggerOptions = {
       },
     ],
   },
-  apis: ['./src/routes/**/*.ts'], // 自动从这些文件读取注释
+  apis: [
+    './src/modules/**/routes.{ts,js}',
+    './src/modules/**/**/*controller.{ts,js}', // 如果你把 swagger 注释放在 controller
+  ], // 自动从这些文件读取注释
 };
