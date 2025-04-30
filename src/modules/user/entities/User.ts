@@ -5,7 +5,6 @@ import { UserOrganizationRole } from '@modules/organization/entities/UserOrganiz
 import { Entity, Column, Index, OneToMany } from 'typeorm';
 
 @Entity()
-@Index('IDX_user_email', ['email'], { unique: true })
 export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
   userName!: string;

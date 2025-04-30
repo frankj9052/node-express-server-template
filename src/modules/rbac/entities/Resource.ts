@@ -10,6 +10,7 @@ export class Resource extends BaseEntity {
 
   @Column({ type: 'varchar', length: 255, default: '' })
   description!: string;
+
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
 

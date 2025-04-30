@@ -12,9 +12,9 @@ export class Organization extends BaseEntity {
   description?: string;
 
   /* 关系 */
-  @OneToMany(() => UserOrganizationRole, uor => uor.organization, { eager: true })
+  @OneToMany(() => UserOrganizationRole, uor => uor.organization)
   userOrganizationRoles!: UserOrganizationRole[];
 
-  @OneToMany(() => Role, role => role.organization, { eager: true, nullable: true })
+  @OneToMany(() => Role, role => role.organization)
   roles!: Role[];
 }

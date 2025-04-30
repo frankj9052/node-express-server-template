@@ -5,18 +5,18 @@ import { User } from '@modules/user/entities/User';
 import { Role } from '@modules/rbac/entities/Role';
 
 @Entity()
-@Unique('UQ_uor_user-org', ['user', 'organization'])
+@Unique('UQ_uor_user-org', ['user', 'organization', 'role'])
 export class UserOrganizationRole extends BaseEntity {
   /* 外键 */
-  @ManyToOne(() => User, user => user.organizationRoles, { eager: true })
+  @ManyToOne(() => User, user => user.organizationRoles, { nullable: false })
   @Index()
   user!: User;
 
-  @ManyToOne(() => Organization, org => org.userOrganizationRoles, { eager: true })
+  @ManyToOne(() => Organization, org => org.userOrganizationRoles, { nullable: false })
   @Index()
   organization!: Organization;
 
-  @ManyToOne(() => Role, role => role.userOrganizationRoles, { eager: true })
+  @ManyToOne(() => Role, role => role.userOrganizationRoles, { nullable: false })
   @Index()
   role!: Role;
 

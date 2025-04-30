@@ -4,30 +4,33 @@ import { Resource } from './Resource';
 import { RolePermission } from './RolePermission';
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
 
-@Entity('permissions')
+@Entity()
+@Index(['name'], { unique: true })
 export class Permission extends BaseEntity {
+  // 命名规则：<resource>.<action>[.<field列表或*>][.<条件key或*>]
+  // 用户资源的读写全权	user.readWrite.*.*
+  // 只读 user.email	user.read.email
+  // 仅能更新自己的资料	user.update.*.owner
   @Column({ type: 'varchar', length: 255 })
-  @Index({ unique: true })
   name!: string;
 
   @Column({ type: 'varchar', length: 255, default: '' })
   description!: string;
 
-  // 表示resource中哪些field可以访问，null表示可以操作整个resource, 这里的type到底用string好还是说有更好的选择，比如array
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  field?: string;
+  @Column('text', { array: true, nullable: true })
+  fields?: string[]; // ['email', 'phone']
 
-  // 表示访问条件，比如ownerOnly等等，这里有没有更好的type，比如enum
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  condition?: string;
+  // { "ownerOnly": true }
+  @Column({ type: 'jsonb', nullable: true })
+  condition?: Record<string, unknown>;
 
-  @ManyToOne(() => Action)
+  @ManyToOne(() => Action, action => action.permissions, { nullable: false })
   action!: Action;
 
-  @ManyToOne(() => Resource)
+  @ManyToOne(() => Resource, resource => resource.permissions, { nullable: false })
   resource!: Resource;
 
-  @OneToMany(() => RolePermission, rolePermission => rolePermission.permission, { eager: true })
+  @OneToMany(() => RolePermission, rolePermission => rolePermission.permission)
   rolePermissions!: RolePermission[];
 
   @Column({ type: 'boolean', default: true })
