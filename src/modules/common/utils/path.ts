@@ -11,3 +11,8 @@ export function getCurrentFilename(metaUrl: string) {
 export function getCurrentDirname(metaUrl: string) {
   return dirname(fileURLToPath(metaUrl));
 }
+
+export function getRootDir() {
+  const rootDir = dirname(fileURLToPath(import.meta.url)).replace(/\/src\/config$/, ''); // => /项目根
+  return rootDir;
+}

@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "prepare": "husky",
     "test": "jest --passWithNoTests",
-    "typeorm": "ts-node-dev ./node_modules/typeorm/cli.js -d src/config/data-source.ts",
+    "typeorm": "cross-env NODE_ENV=migration tsx -r reflect-metadata -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d src/config/data-source.ts",
     "migration:generate": "npm run typeorm migration:generate src/migrations/AutoMigration",
     "migration:run": "npm run typeorm migration:run",
     "migration:revert": "npm run typeorm migration:revert",
@@ -80,6 +80,7 @@
     "supertest": "^7.1.0",
     "ts-jest": "^29.3.2",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   },

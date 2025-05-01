@@ -5,7 +5,7 @@ import { Role } from '@modules/rbac/entities/Role';
 
 @Entity()
 export class Organization extends BaseEntity {
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 255, unique: true })
   name!: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })

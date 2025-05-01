@@ -37,8 +37,8 @@ const baseOptions = {
   namingStrategy: new SnakeNamingStrategy(),
 
   // 匹配 .ts/.js 实体和迁移文件（兼容编译产物）
-  entities: [path.resolve(__dirname, 'src/modules/**/entities/*.{ts,js}')],
-  migrations: [path.resolve(__dirname, 'src/modules/**/migrations/*.{ts,js}')],
+  entities: [path.resolve(__dirname, '../modules/**/entities/*.{ts,js}')],
+  migrations: [path.resolve(__dirname, '../migrations/*.{ts,js}')],
   // 🧩 新增 Seeder 配置（只影响 typeorm-extension，不影响普通 TypeORM）
   seeds: [
     path.resolve(
@@ -48,7 +48,7 @@ const baseOptions = {
         : '../modules/**/seeds/*.{ts,js}' // 开发环境跑全部
     ),
   ],
-  factories: [path.resolve(__dirname, 'src/modules/**/factories/*{.ts,.js}')],
+  factories: [path.resolve(__dirname, '../modules/**/factories/*{.ts,.js}')],
   // 连接池优化（pg-pool 参数）
   extra: {
     max: env.PG_POOL_MAX, // 最大连接数

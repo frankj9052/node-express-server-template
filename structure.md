@@ -23,50 +23,76 @@
 │   │   ├── env.ts
 │   │   ├── rollup.config.js
 │   │   └── sessionOptions.ts
-│   ├── controllers
-│   │   └── test.controller.ts
-│   ├── database
-│   │   ├── entities
-│   │   │   ├── Action.ts
-│   │   │   ├── BaseEntity.ts
-│   │   │   ├── Organization.ts
-│   │   │   ├── Permission.ts
-│   │   │   ├── Resource.ts
-│   │   │   ├── Role.ts
-│   │   │   ├── RolePermission.ts
-│   │   │   ├── User.ts
-│   │   │   └── UserOrganizationRole.ts
-│   │   ├── factories
-│   │   ├── migrations
-│   │   └── seeds
-│   │       └── user.seeder.ts
-│   ├── enums
-│   │   ├── ActionScope.enum.ts
-│   │   ├── gender.enum.ts
-│   │   ├── honorific.enum.ts
-│   │   └── role.enum.ts
+│   ├── infrastructure
+│   │   ├── database.ts
+│   │   └── redis.ts
+│   ├── loaders
+│   │   └── registerRoutes.ts
 │   ├── middlewares
 │   │   ├── authMiddleware.ts
+│   │   ├── errorHandler.ts
 │   │   └── sessionMiddleware.ts
-│   ├── routes
-│   │   ├── index.ts
-│   │   └── v1
-│   │       ├── index.ts
-│   │       ├── public.ts
-│   │       ├── test.ts
-│   │       └── __tests__
-│   │           └── test.route.test.ts
+│   ├── migrations
+│   ├── modules
+│   │   ├── auth
+│   │   │   └── entities
+│   │   ├── common
+│   │   │   ├── entities
+│   │   │   │   └── BaseEntity.ts
+│   │   │   ├── enums
+│   │   │   │   ├── ActionScope.enum.ts
+│   │   │   │   ├── gender.enum.ts
+│   │   │   │   ├── honorific.enum.ts
+│   │   │   │   └── role.enum.ts
+│   │   │   └── utils
+│   │   │       ├── buildPermissionName.ts
+│   │   │       └── path.ts
+│   │   ├── organization
+│   │   │   ├── entities
+│   │   │   │   ├── Organization.ts
+│   │   │   │   └── UserOrganizationRole.ts
+│   │   │   ├── organization.controller.ts
+│   │   │   ├── organization.service.ts
+│   │   │   ├── routes.ts
+│   │   │   └── __test__
+│   │   │       └── organization.route.test.ts
+│   │   ├── rbac
+│   │   │   ├── entities
+│   │   │   │   ├── Action.ts
+│   │   │   │   ├── Permission.ts
+│   │   │   │   ├── Resource.ts
+│   │   │   │   ├── Role.ts
+│   │   │   │   └── RolePermission.ts
+│   │   │   ├── rbac.controller.ts
+│   │   │   ├── rbac.service.ts
+│   │   │   ├── routes.ts
+│   │   │   └── __test__
+│   │   │       └── rbac.route.test.ts
+│   │   ├── test
+│   │   │   ├── routes.ts
+│   │   │   ├── test.controller.ts
+│   │   │   └── __tests__
+│   │   │       └── test.route.test.ts
+│   │   └── user
+│   │       ├── dto
+│   │       ├── entities
+│   │       │   └── User.ts
+│   │       ├── factories
+│   │       │   └── user.factory.ts
+│   │       ├── routes.ts
+│   │       ├── seeds
+│   │       │   ├── user-prod.seed.ts
+│   │       │   └── user.seed.ts
+│   │       ├── user.controller.ts
+│   │       ├── user.service.ts
+│   │       └── __test__
+│   │           └── user.route.test.ts
 │   ├── server.ts
-│   ├── services
 │   ├── swagger
 │   │   ├── swagger.ts
 │   │   └── swaggerOptions.ts
-│   ├── test
-│   │   └── setup.ts
-│   └── utils
-│       ├── connectDatabase.ts
-│       ├── connectRedis.ts
-│       └── path.ts
+│   └── test
+│       └── setup.ts
 ├── structure.md
 └── tsconfig.json
 
