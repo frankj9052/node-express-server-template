@@ -31,7 +31,6 @@ const cloudUrlOptions = env.DATABASE_URL
       ssl: env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
     };
 
-console.log('路径检查===> ', path.join(rootDir, 'src/modules/**/entities/*.{ts,js}'));
 const baseOptions = {
   type: 'postgres',
   synchronize: false,
