@@ -1,12 +1,11 @@
+import { safeCreateEnum } from '@modules/common/lib/safeCreateEnum';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class AutoMigration1746124205870 implements MigrationInterface {
   name = 'AutoMigration1746124205870';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `CREATE TYPE "public"."action_scope_enum" AS ENUM('GLOBAL', 'TENANT', 'ORGANIZATION')`
-    );
+    await safeCreateEnum(queryRunner, 'action_scope_enum', ['GLOBAL', 'TENANT', 'ORGANIZATION']);
     await queryRunner.query(
       `CREATE TABLE "action" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "created_by" character varying(255), "updated_by" character varying(255), "deleted_by" character varying(255), "name" character varying(255) NOT NULL, "scope" "public"."action_scope_enum" NOT NULL DEFAULT 'GLOBAL', "description" character varying(255) NOT NULL DEFAULT '', "is_active" boolean NOT NULL DEFAULT true, CONSTRAINT "PK_2d9db9cf5edfbbae74eb56e3a39" PRIMARY KEY ("id"))`
     );
@@ -19,10 +18,25 @@ export class AutoMigration1746124205870 implements MigrationInterface {
     await queryRunner.query(
       `CREATE UNIQUE INDEX "IDX_c8ed18ff47475e2c4a7bf59daa" ON "resource" ("name") `
     );
-    await queryRunner.query(`CREATE TYPE "public"."user_gender_enum" AS ENUM('male', 'female')`);
-    await queryRunner.query(
-      `CREATE TYPE "public"."user_honorific_enum" AS ENUM('Mr.', 'Mrs.', 'Ms.', 'Miss', 'Dr.', 'Prof.', 'Rev.', 'Sir', 'Madam', 'Lady', 'Lord', 'Capt.', 'Maj.', 'Col.', 'Lt.')`
-    );
+    await safeCreateEnum(queryRunner, 'user_gender_enum', ['male', 'female']);
+
+    await safeCreateEnum(queryRunner, 'user_honorific_enum', [
+      'Mr.',
+      'Mrs.',
+      'Ms.',
+      'Miss',
+      'Dr.',
+      'Prof.',
+      'Rev.',
+      'Sir',
+      'Madam',
+      'Lady',
+      'Lord',
+      'Capt.',
+      'Maj.',
+      'Col.',
+      'Lt.',
+    ]);
     await queryRunner.query(
       `CREATE TABLE "user" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "created_by" character varying(255), "updated_by" character varying(255), "deleted_by" character varying(255), "user_name" character varying(100) NOT NULL, "email" character varying(255), "password" character varying(255), "last_name" character varying(100) NOT NULL, "first_name" character varying(100) NOT NULL, "middle_name" character varying(100), "gender" "public"."user_gender_enum", "date_of_birth" TIMESTAMP WITH TIME ZONE, "honorific" "public"."user_honorific_enum", "oauth_provider" character varying(100), "oauth_id" character varying(100), "avatar_image" character varying(255), "email_verified" boolean NOT NULL DEFAULT false, "profile_complete" boolean NOT NULL DEFAULT true, "refresh_token" character varying(255), "is_active" boolean NOT NULL DEFAULT true, CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`
     );

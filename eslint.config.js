@@ -17,9 +17,7 @@ export default [
     languageOptions: {
       parser,
       parserOptions: {
-        // project: ['./tsconfig.json'],
-        project: file =>
-          file.startsWith('scripts/') ? ['./tsconfig.scripts.json'] : ['./tsconfig.json'],
+        project: ['./tsconfig.json'],
         tsconfigRootDir: process.cwd(),
         sourceType: 'module',
       },
@@ -37,6 +35,12 @@ export default [
       'prettier/prettier': 'error',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/ban-ts-comment': 'warn',
+    },
+  },
+  {
+    files: ['src/modules/**/entities/*.ts'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
     },
   },
 

@@ -2,7 +2,7 @@ import session from 'express-session';
 import { RedisStore } from 'connect-redis';
 import crypto from 'crypto';
 import { env } from './env';
-import { redisClient } from 'src/infrastructure/redis';
+import { redisClient } from 'infrastructure/redis';
 
 // 自定义加密器（AES-256-CBC 示例）
 const encrypt = (text: string) => {

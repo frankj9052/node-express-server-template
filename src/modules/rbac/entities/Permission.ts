@@ -27,7 +27,9 @@ export class Permission extends BaseEntity {
   @ManyToOne(() => Action, action => action.permissions, { nullable: false })
   action!: Action;
 
-  @ManyToOne(() => Resource, resource => resource.permissions, { nullable: false })
+  @ManyToOne(() => Resource, resource => resource.permissions, {
+    nullable: false,
+  })
   resource!: Resource;
 
   @OneToMany(() => RolePermission, rolePermission => rolePermission.permission)

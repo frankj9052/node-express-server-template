@@ -1,5 +1,5 @@
-import app from './app';
-import { AppDataSource } from './config/data-source';
+import AppDataSource from 'config/data-source';
+import { createApp } from './app';
 import { env } from './config/env';
 import { connectDatabase } from './infrastructure/database';
 import { connectRedis, redisClient } from './infrastructure/redis';
@@ -9,34 +9,42 @@ import { Server } from 'http';
 
 let server: Server;
 
+/** 服务启动入口（所有异步 await 都集中在这里） */
 async function startServer() {
   try {
     console.log('🚀 Starting server...');
 
-    await connectDatabase({ dataSource: AppDataSource });
+    // 1. 初始化数据库（含种子）
+    await connectDatabase({
+      dataSource: AppDataSource,
+      enableSeeders: env.ENABLE_SEEDERS === 'true',
+      skipCreateDatabase: true,
+    });
+
+    // 2. 初始化 Redis
     await connectRedis();
 
-    // Redis连上了再use sessionMiddleware
-    app.use(sessionMiddleware);
+    // 3. 创建并配置 Express 应用
+    const app = await createApp(); // ← **等待路由全部挂载**
+    app.use(sessionMiddleware); // Redis 就绪后再挂 session
 
+    // 4. 启动 HTTP 服务器
     server = app.listen(Number(env.PORT), () => {
       console.log(`🚀 Server running at http://localhost:${env.PORT}`);
       console.log(`📚 Swagger docs available at http://localhost:${env.PORT}/api-docs`);
     });
 
-    // 捕获全局未处理Promise异常
+    /* -------- 全局异常与信号处理 -------- */
     process.on('unhandledRejection', reason => {
       console.error('❗ Unhandled Rejection:', reason);
       shutdown(1);
     });
 
-    // 捕获全局未处理Exception异常
     process.on('uncaughtException', error => {
       console.error('❗ Uncaught Exception:', error);
       shutdown(1);
     });
 
-    // 捕获 SIGINT (Ctrl+C) 或 SIGTERM (容器停止)
     process.on('SIGINT', () => shutdown(0));
     process.on('SIGTERM', () => shutdown(0));
   } catch (error) {
@@ -45,25 +53,21 @@ async function startServer() {
   }
 }
 
+/** 优雅关闭 */
 async function shutdown(exitCode: number) {
   console.log('🧹 Shutting down server...');
 
   try {
     if (server) {
       await new Promise<void>((resolve, reject) => {
-        server.close(err => {
-          if (err) return reject(err);
-          resolve();
-        });
+        server.close(err => (err ? reject(err) : resolve()));
       });
       console.log('🛑 HTTP server closed.');
     }
-
     if (redisClient) {
       await redisClient.quit();
       console.log('🛑 Redis client disconnected.');
     }
-
     if (AppDataSource.isInitialized) {
       await AppDataSource.destroy();
       console.log('🛑 Database connection closed.');
