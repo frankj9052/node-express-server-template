@@ -12,11 +12,11 @@ export default class OrganizationProdSeed implements Seeder {
 
     await repo.insert([
       {
-        name: 'Public',
+        name: 'public',
         description: 'Shared organization for unscoped data',
       },
       {
-        name: 'Root',
+        name: 'root',
         description:
           'Root-level organization with full system access for developers and platform administrators',
       },

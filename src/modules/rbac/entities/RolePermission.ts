@@ -11,9 +11,9 @@ export class RolePermission extends BaseEntity {
   /* 外键 */
   @ManyToOne(() => Permission, { nullable: false })
   @JoinColumn({ name: 'permission_id' })
-  permission!: string;
+  permission!: Permission;
 
   @ManyToOne(() => Role, { nullable: false })
   @JoinColumn({ name: 'role_id' })
-  role!: string;
+  role!: Role;
 }
