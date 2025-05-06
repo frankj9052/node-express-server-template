@@ -1,7 +1,6 @@
-import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { Action } from './Action';
 import { Resource } from './Resource';
-import { RolePermission } from './RolePermission';
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
 
 @Entity()
@@ -24,16 +23,11 @@ export class Permission extends BaseEntity {
   @Column({ type: 'jsonb', nullable: true })
   condition?: Record<string, unknown>;
 
-  @ManyToOne(() => Action, action => action.permissions, { nullable: false })
+  @ManyToOne(() => Action, { nullable: false })
   action!: Action;
 
-  @ManyToOne(() => Resource, resource => resource.permissions, {
-    nullable: false,
-  })
+  @ManyToOne(() => Resource, { nullable: false })
   resource!: Resource;
-
-  @OneToMany(() => RolePermission, rolePermission => rolePermission.permission)
-  rolePermissions!: RolePermission[];
 
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;

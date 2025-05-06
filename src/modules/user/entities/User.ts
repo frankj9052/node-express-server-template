@@ -1,8 +1,7 @@
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
 import { Gender } from '@modules/common/enums/gender.enum';
 import { Honorific } from '@modules/common/enums/honorific.enum';
-import { UserOrganizationRole } from '@modules/organization/entities/UserOrganizationRole';
-import { Entity, Column, Index, OneToMany } from 'typeorm';
+import { Entity, Column, Index } from 'typeorm';
 
 @Entity()
 export class User extends BaseEntity {
@@ -56,8 +55,4 @@ export class User extends BaseEntity {
 
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
-
-  /* 关系 */
-  @OneToMany(() => UserOrganizationRole, uor => uor.user, { eager: true })
-  organizationRoles!: UserOrganizationRole[];
 }

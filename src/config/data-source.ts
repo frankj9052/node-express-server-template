@@ -46,7 +46,13 @@ const baseOptions = {
         : path.join(rootDir, 'src/modules/**/entities/*.{ts,js}')
     ),
   ],
-  migrations: [toPosix(`${rootDir}/src/migrations/*.{ts,js}`)],
+  migrations: [
+    toPosix(
+      isProd
+        ? path.join(rootDir, 'dist/migrations/*.js')
+        : path.join(rootDir, 'src/migrations/*.{ts,js}')
+    ),
+  ],
 
   extra: {
     max: env.PG_POOL_MAX,

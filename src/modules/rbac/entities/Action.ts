@@ -1,6 +1,5 @@
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
-import { Column, Entity, Index, OneToMany } from 'typeorm';
-import { Permission } from './Permission';
+import { Column, Entity, Index } from 'typeorm';
 import { ActionScope } from '@modules/common/enums/ActionScope.enum';
 
 @Entity()
@@ -17,7 +16,4 @@ export class Action extends BaseEntity {
 
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
-
-  @OneToMany(() => Permission, permission => permission.action, { eager: true })
-  permissions!: Permission[];
 }

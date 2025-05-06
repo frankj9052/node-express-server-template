@@ -15,6 +15,7 @@ const require = createRequire(import.meta.url);
 const pkg = require('../../package.json');
 // 新增：打包所有 seeds 文件
 const seedEntries = fg.sync('src/modules/**/seeds/*.seed.ts', { dot: false });
+const migrationEntries = fg.sync('src/migrations/**/*.ts', { dot: false });
 
 /* ────────── 通用配置 ────────── */
 const externalDeps = [
@@ -48,6 +49,7 @@ const entryFiles = [
   'src/server.ts',
   ...routeEntries,
   ...seedEntries, // 新增seed文件入口
+  ...migrationEntries,
 ];
 
 /* ────────── 1. 应用主包（CommonJS） ────────── */

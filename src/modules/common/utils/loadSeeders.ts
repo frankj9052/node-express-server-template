@@ -9,18 +9,28 @@ const __dirname = getCurrentDirname(import.meta.url);
 export async function loadSeeders(): Promise<any[]> {
   const isProd = env.NODE_ENV === 'production';
   const cwd = path.resolve(__dirname, isProd ? '../../../modules' : '../..');
-
   const seedPatterns = isProd ? ['**/seeds/*-prod.seed.js'] : ['**/seeds/*.seed.ts'];
 
-  const seedFiles = await fg(seedPatterns, { cwd, absolute: true });
-
-  console.log('seedFiles ===> ', seedFiles);
-  console.log('cwd ===> ', cwd);
+  let seedFiles: string[];
+  try {
+    seedFiles = await fg(seedPatterns, { cwd, absolute: true });
+  } catch (e) {
+    throw new Error(
+      `Failed to find seed files in ${cwd} using patterns ${seedPatterns}: ${(e as Error).message}`
+    );
+  }
 
   const modules = await Promise.all(
     seedFiles.map(async file => {
-      const mod = await import(pathToFileURL(file).href);
-      return mod.default;
+      try {
+        const mod = await import(pathToFileURL(file).href);
+        if (!mod.default) {
+          console.warn(`[loadSeeders] No default export found in ${file}, skipping.`);
+        }
+        return mod.default;
+      } catch (e) {
+        throw new Error(`Failed to import seed file: ${file}\n${(e as Error).stack}`);
+      }
     })
   );
 

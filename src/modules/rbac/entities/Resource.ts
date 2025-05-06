@@ -1,5 +1,4 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
-import { Permission } from './Permission';
+import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
 
 @Entity()
@@ -13,7 +12,4 @@ export class Resource extends BaseEntity {
 
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
-
-  @OneToMany(() => Permission, permission => permission.resource, { eager: true })
-  permissions!: Permission[];
 }

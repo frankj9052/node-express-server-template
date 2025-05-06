@@ -1,8 +1,6 @@
-import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
-import { RolePermission } from './RolePermission';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
 import { Organization } from '@modules/organization/entities/Organization';
-import { UserOrganizationRole } from '@modules/organization/entities/UserOrganizationRole';
 
 @Entity()
 @Index(['name', 'organization'], { unique: true })
@@ -17,12 +15,6 @@ export class Role extends BaseEntity {
   isActive!: boolean;
 
   /* 外键 */
-  @ManyToOne(() => Organization, org => org.roles, { nullable: true })
+  @ManyToOne(() => Organization, { nullable: true })
   organization!: Organization; // null 表示全局角色
-
-  @OneToMany(() => UserOrganizationRole, uor => uor.role, { eager: true })
-  userOrganizationRoles!: UserOrganizationRole[];
-
-  @OneToMany(() => RolePermission, rolePermission => rolePermission.role, { eager: true })
-  rolePermissions!: RolePermission[];
 }
