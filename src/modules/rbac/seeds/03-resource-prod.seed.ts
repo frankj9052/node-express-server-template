@@ -1,28 +1,62 @@
-import { DataSource } from 'typeorm';
-import { Seeder } from 'typeorm-extension';
+import { DataSource, Repository } from 'typeorm';
+import { ConditionalSeeder } from '@modules/common/lib/ConditionalSeeder';
 import { Resource } from '../entities/Resource';
+import { SYSTEM_RESOURCES } from '@modules/common/constants/system-resources';
 
-export default class ResourceProdSeed implements Seeder {
-  async run(dataSource: DataSource): Promise<void> {
-    const repo = dataSource.getRepository(Resource);
-    console.log('ResourceProdSeed');
+/**
+ * Seeder: ResourceProdSeed
+ *
+ * Inserts essential resources used for permission control.
+ * Only inserts missing ones (ensures idempotency).
+ */
+export default class ResourceProdSeed implements ConditionalSeeder {
+  private getRepository(dataSource: DataSource): Repository<Resource> {
+    return dataSource.getRepository(Resource);
+  }
 
-    const resources: Array<Pick<Resource, 'name' | 'description'>> = [
-      { name: 'all', description: 'All resources' },
-      { name: 'organization', description: 'Manage platform-level organizations or tenants' },
-      { name: 'userOrganizationRole', description: 'Assign users to organizations and roles' },
-      { name: 'action', description: 'Define available system actions (e.g., CREATE, READ)' },
-      { name: 'permission', description: 'Grant or restrict access to resource-action pairs' },
-      { name: 'resource', description: 'Define system-level entities that can be protected' },
-      { name: 'role', description: 'User role definitions and metadata' },
-      { name: 'rolePermission', description: 'Link roles to their allowed permissions' },
-    ];
+  private readonly resources: Array<Pick<Resource, 'name' | 'description'>> = [
+    SYSTEM_RESOURCES.ALL,
+    SYSTEM_RESOURCES.ORGANIZATION,
+    SYSTEM_RESOURCES.USER_ORG_ROLE,
+    SYSTEM_RESOURCES.ACTION,
+    SYSTEM_RESOURCES.PERMISSION,
+    SYSTEM_RESOURCES.RESOURCE,
+    SYSTEM_RESOURCES.ROLE,
+    SYSTEM_RESOURCES.ROLE_PERMISSION,
+  ];
 
-    for (const resource of resources) {
+  private missingResources: Array<Pick<Resource, 'name' | 'description'>> = [];
+
+  async shouldRun(dataSource: DataSource): Promise<boolean> {
+    console.log('\n[Seeder][ResourceProdSeed] ▶️ Checking for required resources...');
+    const repo = this.getRepository(dataSource);
+    this.missingResources = [];
+
+    for (const resource of this.resources) {
       const exists = await repo.exists({ where: { name: resource.name } });
       if (!exists) {
-        await repo.insert(resource);
+        this.missingResources.push(resource);
+        console.log(`[Seeder][ResourceProdSeed] ❌ Missing resource: "${resource.name}"`);
       }
     }
+
+    if (this.missingResources.length > 0) {
+      return true;
+    }
+
+    console.log('[Seeder][ResourceProdSeed] ✅ All resources already exist. Skipping seeder.\n');
+    return false;
+  }
+
+  async run(dataSource: DataSource): Promise<void> {
+    console.log('\n[Seeder][ResourceProdSeed] 🚀 Running resource seeder...');
+    const repo = this.getRepository(dataSource);
+
+    for (const resource of this.missingResources) {
+      await repo.insert(resource);
+      console.log(`[Seeder][ResourceProdSeed] ✅ Inserted resource: "${resource.name}"`);
+    }
+
+    console.log('[Seeder][ResourceProdSeed] 🎉 Resource seeding completed.\n');
   }
 }

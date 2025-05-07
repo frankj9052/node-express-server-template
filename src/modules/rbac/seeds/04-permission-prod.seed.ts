@@ -1,35 +1,77 @@
-// src/modules/rbac/seeds/permission-prod.seed.ts
-import { DataSource } from 'typeorm';
-import { Seeder } from 'typeorm-extension';
+import { DataSource, Repository } from 'typeorm';
+import { ConditionalSeeder } from '@modules/common/lib/ConditionalSeeder';
 import { Permission } from '../entities/Permission';
 import { Resource } from '../entities/Resource';
 import { Action } from '../entities/Action';
+import { SYSTEM_ACTIONS } from '@modules/common/constants/system-actions';
+import { SYSTEM_RESOURCES } from '@modules/common/constants/system-resources';
+import { SYSTEM_PERMISSIONS } from '@modules/common/constants/system-permissions';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
-export default class PermissionProdSeed implements Seeder {
-  public async run(dataSource: DataSource): Promise<void> {
-    const permissionRepo = dataSource.getRepository(Permission);
-    const resourceRepo = dataSource.getRepository(Resource);
-    const actionRepo = dataSource.getRepository(Action);
+/**
+ * Seeder: PermissionProdSeed
+ *
+ * Inserts a full-access permission (e.g., *:*:*:*) used by the admin role.
+ */
+export default class PermissionProdSeed implements ConditionalSeeder {
+  private readonly permissionDef = SYSTEM_PERMISSIONS.ALL;
+  private shouldInsert = false;
+  private resourceId: string | null = null;
+  private actionId: string | null = null;
 
-    // 获取相关的 resource 和 action
-    const resource = await resourceRepo.findOneByOrFail({ name: 'all' }); // 你可以用 'all' 表示通配资源
-    const action = await actionRepo.findOneByOrFail({ name: 'all' }); // 'all' 表示所有操作
+  private getPermissionRepo(dataSource: DataSource): Repository<Permission> {
+    return dataSource.getRepository(Permission);
+  }
 
-    const name = 'all.all.*.*'; // 全权限标识符
+  async shouldRun(dataSource: DataSource): Promise<boolean> {
+    console.log('\n[Seeder][PermissionProdSeed] ▶️ Checking if full-access permission exists...');
 
-    const exists = await permissionRepo.exists({ where: { name } });
-    if (exists) return;
+    const repo = this.getPermissionRepo(dataSource);
+    const exists = await repo.exists({ where: { name: this.permissionDef.name } });
 
-    const newPermission: Partial<Permission> = {
-      name,
-      description: 'Grant all permissions to super admin',
-      fields: undefined,
-      condition: undefined,
-      resource,
-      action,
+    if (!exists) {
+      const resource = await dataSource.getRepository(Resource).findOneByOrFail({
+        name: SYSTEM_RESOURCES.ALL.name,
+      });
+
+      const action = await dataSource.getRepository(Action).findOneByOrFail({
+        name: SYSTEM_ACTIONS.ALL.name,
+      });
+
+      this.resourceId = resource.id;
+      this.actionId = action.id;
+      this.shouldInsert = true;
+
+      console.log(
+        `[Seeder][PermissionProdSeed] ❌ Missing permission: "${this.permissionDef.name}"`
+      );
+      return true;
+    }
+
+    console.log('[Seeder][PermissionProdSeed] ✅ Permission already exists. Skipping.\n');
+    return false;
+  }
+
+  async run(dataSource: DataSource): Promise<void> {
+    if (!this.shouldInsert || !this.resourceId || !this.actionId) return;
+
+    console.log('\n[Seeder][PermissionProdSeed] 🚀 Running permission seeder...');
+
+    const permissionRepo = this.getPermissionRepo(dataSource);
+
+    const newPermission: QueryDeepPartialEntity<Permission> = {
+      name: this.permissionDef.name,
+      description: this.permissionDef.description,
       isActive: true,
+      resource: { id: this.resourceId },
+      action: { id: this.actionId },
     };
 
-    await permissionRepo.save(newPermission);
+    await permissionRepo.insert(newPermission);
+
+    console.log(
+      `[Seeder][PermissionProdSeed] ✅ Inserted permission: "${this.permissionDef.name}"`
+    );
+    console.log('[Seeder][PermissionProdSeed] 🎉 Permission seeding completed.\n');
   }
 }

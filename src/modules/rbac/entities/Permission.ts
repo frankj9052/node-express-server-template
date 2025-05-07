@@ -6,7 +6,7 @@ import { BaseEntity } from '@modules/common/entities/BaseEntity';
 @Entity()
 @Index(['name'], { unique: true })
 export class Permission extends BaseEntity {
-  // 命名规则：<resource>.<action>[.<field列表或*>][.<条件key或*>]
+  // 命名规则：buildPermissionName
   // 用户资源的读写全权	user.readWrite.*.*
   // 只读 user.email	user.read.email
   // 仅能更新自己的资料	user.update.*.owner

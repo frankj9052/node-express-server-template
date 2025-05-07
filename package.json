@@ -19,13 +19,15 @@
     "migration:run:prod": "cross-env NODE_ENV=production npm run typeorm:prod migration:run",
     "migration:revert": "cross-env NODE_ENV=development npm run typeorm migration:revert",
     "migration:revert:prod": "cross-env NODE_ENV=production npm run typeorm migration:revert",
-    "generate:tree": "tsx ./scripts/generateTree.ts"
+    "generate:tree": "tsx ./scripts/generateTree.ts",
+    "argon2-env-test": "tsx ./scripts/argon2Test.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "argon2": "^0.43.0",
     "connect-redis": "^8.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

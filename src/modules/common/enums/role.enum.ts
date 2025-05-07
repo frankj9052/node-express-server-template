@@ -1,3 +1,4 @@
+// 目前未用到
 export enum Role {
   CLIENT = 'client',
   PROVIDER = 'provider',

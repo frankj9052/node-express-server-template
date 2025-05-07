@@ -1,8 +1,7 @@
-// src/lib/connectDatabaseSafely.ts
 import { loadSeeders } from '@modules/common/utils/loadSeeders';
-import { DataSource } from 'typeorm';
-import { createDatabase, runSeeders, useDataSource } from 'typeorm-extension';
-import { setDataSource } from 'typeorm-extension';
+import { createDatabase, setDataSource } from 'typeorm-extension';
+import type { DataSource } from 'typeorm';
+import { runSeedersInOrder } from '@modules/common/utils/runSeedersInOrder';
 
 interface ConnectDatabaseOptions {
   dataSource: DataSource;
@@ -11,6 +10,9 @@ interface ConnectDatabaseOptions {
   skipCreateDatabase?: boolean;
 }
 
+/**
+ * Initialize and connect to the database with optional seed execution.
+ */
 export async function connectDatabase({
   dataSource,
   initialDatabaseName,
@@ -18,40 +20,36 @@ export async function connectDatabase({
   skipCreateDatabase = false,
 }: ConnectDatabaseOptions): Promise<void> {
   try {
-    console.log('🔧 Step 1: (Optional) Creating database if not exists...');
+    // STEP 1: Create DB (optional)
+    console.log('🔧 Step 1: Preparing database...');
     if (skipCreateDatabase && initialDatabaseName) {
       await createDatabase({
         options: dataSource.options,
         initialDatabase: initialDatabaseName,
         ifNotExist: true,
       });
-      console.log('✅ Database check completed.');
+      console.log('✅ Database existence verified.');
     } else {
-      console.log('⚡ Skipping database creation step.');
+      console.log('⚡ Skipping database creation (assumed already exists).');
     }
 
+    // STEP 2: Connect
     console.log('🔌 Step 2: Connecting to database...');
     await dataSource.initialize();
+    setDataSource(dataSource); // Set global reference for extension tools
     console.log('✅ Database connection established.');
 
-    setDataSource(dataSource);
-
-    if (enableSeeders) {
-      console.log('🌱 Step 3: Running seeders...');
-      const ds = await useDataSource();
-
-      const seeds = await loadSeeders();
-      const seedsResult = await runSeeders(ds, { seeds });
-      console.log(
-        '🧪 Executed Seeders:',
-        seedsResult.map(s => s.name)
-      );
-      console.log('✅ Seeders executed.');
-    } else {
-      console.log('🚫 Step 3: Skipping seeders.');
+    // STEP 3: Seeders
+    if (!enableSeeders) {
+      console.log('🚫 Step 3: Seeder execution disabled by config.');
+      return;
     }
+
+    console.log('🌱 Step 3: Running seeders in order...');
+    const seeders = await loadSeeders();
+    await runSeedersInOrder(dataSource, seeders);
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    console.error('❌ Database setup failed:', error instanceof Error ? error.stack : error);
     throw error;
   }
 }
