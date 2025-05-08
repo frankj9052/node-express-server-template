@@ -2,7 +2,7 @@ import AppDataSource from 'config/data-source';
 import { createApp } from './app';
 import { env } from './config/env';
 import { connectDatabase } from './infrastructure/database';
-import { connectRedis, redisClient } from './infrastructure/redis';
+import { closeRedisConnection, connectRedis, redisClient } from './infrastructure/redis';
 import { sessionMiddleware } from './middlewares/sessionMiddleware';
 
 import { Server } from 'http';
@@ -65,8 +65,7 @@ async function shutdown(exitCode: number) {
       console.log('🛑 HTTP server closed.');
     }
     if (redisClient) {
-      await redisClient.quit();
-      console.log('🛑 Redis client disconnected.');
+      await closeRedisConnection();
     }
     if (AppDataSource.isInitialized) {
       await AppDataSource.destroy();

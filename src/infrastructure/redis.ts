@@ -43,25 +43,14 @@ export async function connectRedis() {
   });
 }
 
-async function closeRedisConnection() {
+export async function closeRedisConnection() {
   if (redisClient) {
     console.log('🧹 Closing Redis connection...');
     try {
       await redisClient.quit();
-      console.log('✅ Redis connection closed gracefully.');
+      console.log('🛑 Redis client disconnected.');
     } catch (error) {
       console.error('❗ Error closing Redis connection:', error);
     }
   }
 }
-
-// 监听退出信号，优雅关闭
-process.on('SIGINT', async () => {
-  await closeRedisConnection();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  await closeRedisConnection();
-  process.exit(0);
-});

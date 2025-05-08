@@ -1,8 +1,10 @@
 import { buildPermissionName } from '../utils/buildPermissionName';
+import { SYSTEM_ACTIONS } from './system-actions';
+import { SYSTEM_RESOURCES } from './system-resources';
 
 export const SYSTEM_PERMISSIONS = {
   ALL: {
-    name: buildPermissionName('*', '*', null, null),
+    name: buildPermissionName(SYSTEM_RESOURCES.ALL.name, SYSTEM_ACTIONS.ALL.name, null, null),
     description: 'Grant all permissions',
   },
 } as const;
