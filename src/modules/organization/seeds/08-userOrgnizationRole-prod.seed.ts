@@ -7,7 +7,6 @@ import { UserOrganizationRole } from '@modules/organization/entities/UserOrganiz
 import { SYSTEM_ORGANIZATIONS } from '@modules/common/constants/system-organizations';
 import { SYSTEM_ROLES } from '@modules/common/constants/system-role';
 import { waitForEntity } from '@modules/common/utils/waitForEntity';
-import { buildFullUserOrgRoleName } from '@modules/common/utils/buildUserOrgRoleName';
 
 export default class UserOrganizationRoleProdSeed implements ConditionalSeeder {
   private readonly email = process.env.SUPER_ADMIN_EMAIL!;
@@ -64,15 +63,17 @@ export default class UserOrganizationRoleProdSeed implements ConditionalSeeder {
 
     console.log('\n[Seeder][UserOrganizationRoleProdSeed] 🚀 Running UOR seeder...');
 
-    const name = buildFullUserOrgRoleName(this.user.id, this.org.id, this.role.code);
+    const uorRepo = dataSource.getRepository(UserOrganizationRole);
 
-    await dataSource.getRepository(UserOrganizationRole).insert({
-      name,
+    const uor = uorRepo.create({
       user: this.user,
       organization: this.org,
       role: this.role,
       isActive: true,
     });
+
+    // 会触发 @BeforeInsert() 自动设置 name 字段
+    await uorRepo.save(uor);
 
     console.log('[Seeder][UserOrganizationRoleProdSeed] ✅ Linked user to platform-admin role\n');
   }

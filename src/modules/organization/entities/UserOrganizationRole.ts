@@ -1,8 +1,9 @@
-import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, ManyToOne } from 'typeorm';
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
 import { Organization } from './Organization';
 import { User } from '@modules/user/entities/User';
 import { Role } from '@modules/rbac/entities/Role';
+import { buildFullUserOrgRoleName } from '@modules/common/utils/buildUserOrgRoleName';
 
 @Entity()
 @Index('IDX_uor_name', ['name'], { unique: true })
@@ -25,4 +26,11 @@ export class UserOrganizationRole extends BaseEntity {
 
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  private setName(): void {
+    if (!this.user?.id || !this.organization?.id || !this.role?.id) return;
+    this.name = buildFullUserOrgRoleName(this.user.id, this.organization.id, this.role.code);
+  }
 }

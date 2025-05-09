@@ -1,4 +1,4 @@
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { ConditionalSeeder } from '@modules/common/lib/ConditionalSeeder';
 import { Permission } from '../entities/Permission';
 import { Resource } from '../entities/Resource';
@@ -6,7 +6,6 @@ import { Action } from '../entities/Action';
 import { SYSTEM_ACTIONS } from '@modules/common/constants/system-actions';
 import { SYSTEM_RESOURCES } from '@modules/common/constants/system-resources';
 import { SYSTEM_PERMISSIONS } from '@modules/common/constants/system-permissions';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { PermissionAction } from '../entities/PermissionAction';
 
 /**
@@ -29,7 +28,8 @@ export default class PermissionProdSeed implements ConditionalSeeder {
 
     const repo = this.getPermissionRepo(dataSource);
     const exists = await repo.exists({ where: { name: this.permissionDef.name } });
-
+    console.log('name check ===> ', this.permissionDef.name);
+    console.log('exists ===> ', exists);
     if (!exists) {
       const resource = await dataSource.getRepository(Resource).findOneByOrFail({
         name: SYSTEM_RESOURCES.ALL.name,
@@ -54,31 +54,43 @@ export default class PermissionProdSeed implements ConditionalSeeder {
   }
 
   async run(dataSource: DataSource): Promise<void> {
-    if (!this.shouldInsert || !this.resourceId || !this.actionIds) return;
+    if (!this.shouldInsert || !this.resourceId || !this.actionIds.length) return;
 
     console.log('\n[Seeder][PermissionProdSeed] 🚀 Running permission seeder...');
 
     const permissionRepo = this.getPermissionRepo(dataSource);
+    const resourceRepo = dataSource.getRepository(Resource);
+    const actionRepo = dataSource.getRepository(Action);
+    const permissionActionRepo = dataSource.getRepository(PermissionAction);
 
-    const newPermission: QueryDeepPartialEntity<Permission> = {
-      name: this.permissionDef.name,
+    const resource = await resourceRepo.findOneByOrFail({ id: this.resourceId });
+    const actions = await actionRepo.findBy({ id: In(this.actionIds) }); // 获取 Action 实体
+
+    // 构建 Permission 实体对象（触发生命周期钩子）
+    const permission = permissionRepo.create({
       description: this.permissionDef.description,
       isActive: true,
-      resource: { id: this.resourceId },
-    };
+      resource,
+      fields: [], // 如果有字段控制，这里填
+      condition: {}, // 如果有条件，这里填
+    });
 
-    await permissionRepo.insert(newPermission);
+    // ⚠️ 必须显式设置动作名，用于 name 构建（这个不会存 DB）
+    permission.setActionsForNameBuild(actions.map(a => a.name));
 
-    const permissionActionRepo = dataSource.getRepository(PermissionAction);
-    const permissionActions = this.actionIds.map(actionId => ({
-      permission: newPermission,
-      action: { id: actionId },
+    // 保存 permission（此时 name 会自动生成）
+    const savedPermission = await permissionRepo.save(permission);
+
+    // 插入中间表 PermissionAction
+    const permissionActions = actions.map(action => ({
+      permission: { id: savedPermission.id },
+      action: { id: action.id },
+      isActive: true,
     }));
 
     await permissionActionRepo.insert(permissionActions);
-    console.log(
-      `[Seeder][PermissionProdSeed] ✅ Inserted permission: "${this.permissionDef.name}"`
-    );
+
+    console.log(`[Seeder][PermissionProdSeed] ✅ Inserted permission: "${savedPermission.name}"`);
     console.log('[Seeder][PermissionProdSeed] 🎉 Permission seeding completed.\n');
   }
 }

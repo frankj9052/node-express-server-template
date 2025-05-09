@@ -1,11 +1,13 @@
-import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, ManyToOne } from 'typeorm';
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
 import { Organization } from '@modules/organization/entities/Organization';
+import { buildRoleCode } from '@modules/common/utils/buildRoleCode';
 
 @Entity()
 @Index(['name', 'organization'], { unique: true })
+@Index(['code'], { unique: true })
 export class Role extends BaseEntity {
-  @Column({ type: 'varchar', length: 255, unique: true })
+  @Column({ type: 'varchar', length: 255 })
   code!: string;
 
   @Column({ type: 'varchar', length: 50 })
@@ -19,4 +21,11 @@ export class Role extends BaseEntity {
 
   @ManyToOne(() => Organization, { nullable: false, onDelete: 'SET NULL' })
   organization!: Organization;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  private setCode(): void {
+    if (!this.organization?.id || !this.name) return;
+    this.code = buildRoleCode(this.organization.id, this.name.toLowerCase());
+  }
 }

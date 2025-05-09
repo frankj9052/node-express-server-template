@@ -4,7 +4,6 @@ import { Role } from '../entities/Role';
 import { SYSTEM_ROLES } from '@modules/common/constants/system-role';
 import { SYSTEM_ORGANIZATIONS } from '@modules/common/constants/system-organizations';
 import { Organization } from '@modules/organization/entities/Organization';
-import { buildRoleCode } from '@modules/common/utils/buildRoleCode';
 
 /**
  * Seeder: RoleProdSeed
@@ -57,13 +56,14 @@ export default class RoleProdSeed implements ConditionalSeeder {
     console.log('\n[Seeder][RoleProdSeed] 🚀 Running role seeder...');
     const roleRepo = this.getRepository(dataSource);
 
-    await roleRepo.insert({
-      code: buildRoleCode(this.platformOrg!.id, this.role.name),
+    const role = roleRepo.create({
       name: this.role.name,
       description: this.role.description,
       isActive: true,
       organization: this.platformOrg!,
     });
+
+    await roleRepo.save(role); // ✅ 会触发 setCode()
 
     console.log(`[Seeder][RoleProdSeed] ✅ Inserted role: "${this.role.name}"`);
     console.log('[Seeder][RoleProdSeed] 🎉 Role seeding completed.\n');

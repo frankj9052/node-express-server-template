@@ -6,7 +6,6 @@ import { RolePermission } from '../entities/RolePermission';
 import { SYSTEM_PERMISSIONS } from '@modules/common/constants/system-permissions';
 import { SYSTEM_ROLES } from '@modules/common/constants/system-role';
 import { waitForEntity } from '@modules/common/utils/waitForEntity';
-import { buildRolePermissionName } from '@modules/common/utils/buildRolePermissionName';
 
 /**
  * Seeder: RolePermissionProdSeed
@@ -66,12 +65,14 @@ export default class RolePermissionProdSeed implements ConditionalSeeder {
     console.log('\n[Seeder][RolePermissionProdSeed] 🚀 Running role-permission seeder...');
     const rpRepo = this.getRepository(dataSource);
 
-    await rpRepo.insert({
-      role: { id: this.role.id },
-      permission: { id: this.permission.id },
+    const rolePermission = rpRepo.create({
+      role: this.role,
+      permission: this.permission,
       isActive: true,
-      name: buildRolePermissionName(this.roleName, this.permissionName),
     });
+
+    // ✅ 会触发 @BeforeInsert() 自动生成 name 字段
+    await rpRepo.save(rolePermission);
 
     console.log(
       `[Seeder][RolePermissionProdSeed] ✅ Granted "${this.permissionName}" to role "${this.roleName}"`
