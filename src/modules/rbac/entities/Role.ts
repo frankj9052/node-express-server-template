@@ -5,6 +5,9 @@ import { Organization } from '@modules/organization/entities/Organization';
 @Entity()
 @Index(['name', 'organization'], { unique: true })
 export class Role extends BaseEntity {
+  @Column({ type: 'varchar', length: 255, unique: true })
+  code!: string;
+
   @Column({ type: 'varchar', length: 50 })
   name!: string;
 
@@ -14,7 +17,6 @@ export class Role extends BaseEntity {
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
 
-  /* 外键 */
-  @ManyToOne(() => Organization, { nullable: true })
-  organization!: Organization; // null 表示全局角色
+  @ManyToOne(() => Organization, { nullable: false, onDelete: 'SET NULL' })
+  organization!: Organization;
 }

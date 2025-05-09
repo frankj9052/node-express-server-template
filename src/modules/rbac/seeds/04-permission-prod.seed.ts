@@ -7,6 +7,7 @@ import { SYSTEM_ACTIONS } from '@modules/common/constants/system-actions';
 import { SYSTEM_RESOURCES } from '@modules/common/constants/system-resources';
 import { SYSTEM_PERMISSIONS } from '@modules/common/constants/system-permissions';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { PermissionAction } from '../entities/PermissionAction';
 
 /**
  * Seeder: PermissionProdSeed
@@ -17,7 +18,7 @@ export default class PermissionProdSeed implements ConditionalSeeder {
   private readonly permissionDef = SYSTEM_PERMISSIONS.ALL;
   private shouldInsert = false;
   private resourceId: string | null = null;
-  private actionId: string | null = null;
+  private actionIds: string[] = [];
 
   private getPermissionRepo(dataSource: DataSource): Repository<Permission> {
     return dataSource.getRepository(Permission);
@@ -34,12 +35,12 @@ export default class PermissionProdSeed implements ConditionalSeeder {
         name: SYSTEM_RESOURCES.ALL.name,
       });
 
-      const action = await dataSource.getRepository(Action).findOneByOrFail({
+      const actions = await dataSource.getRepository(Action).findBy({
         name: SYSTEM_ACTIONS.ALL.name,
       });
 
       this.resourceId = resource.id;
-      this.actionId = action.id;
+      this.actionIds = actions.map(a => a.id);
       this.shouldInsert = true;
 
       console.log(
@@ -53,7 +54,7 @@ export default class PermissionProdSeed implements ConditionalSeeder {
   }
 
   async run(dataSource: DataSource): Promise<void> {
-    if (!this.shouldInsert || !this.resourceId || !this.actionId) return;
+    if (!this.shouldInsert || !this.resourceId || !this.actionIds) return;
 
     console.log('\n[Seeder][PermissionProdSeed] 🚀 Running permission seeder...');
 
@@ -64,11 +65,17 @@ export default class PermissionProdSeed implements ConditionalSeeder {
       description: this.permissionDef.description,
       isActive: true,
       resource: { id: this.resourceId },
-      action: { id: this.actionId },
     };
 
     await permissionRepo.insert(newPermission);
 
+    const permissionActionRepo = dataSource.getRepository(PermissionAction);
+    const permissionActions = this.actionIds.map(actionId => ({
+      permission: newPermission,
+      action: { id: actionId },
+    }));
+
+    await permissionActionRepo.insert(permissionActions);
     console.log(
       `[Seeder][PermissionProdSeed] ✅ Inserted permission: "${this.permissionDef.name}"`
     );

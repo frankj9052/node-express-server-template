@@ -5,7 +5,7 @@ import { BaseEntity } from '@modules/common/entities/BaseEntity';
 
 @Entity()
 export class RolePermission extends BaseEntity {
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 512, nullable: true })
   name?: string;
 
   @Column({ type: 'boolean', default: true })

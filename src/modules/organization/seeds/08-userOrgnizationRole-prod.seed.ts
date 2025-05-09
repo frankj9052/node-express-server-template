@@ -64,7 +64,7 @@ export default class UserOrganizationRoleProdSeed implements ConditionalSeeder {
 
     console.log('\n[Seeder][UserOrganizationRoleProdSeed] 🚀 Running UOR seeder...');
 
-    const name = buildFullUserOrgRoleName(this.email, this.org.name, this.role.name);
+    const name = buildFullUserOrgRoleName(this.user.id, this.org.id, this.role.code);
 
     await dataSource.getRepository(UserOrganizationRole).insert({
       name,

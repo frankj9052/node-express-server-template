@@ -19,6 +19,10 @@ export const SYSTEM_RESOURCES = {
     name: 'permission',
     description: 'Grant or restrict access to resource-action pairs',
   },
+  PERMISSION_ACTION: {
+    name: 'permissionAction',
+    description: 'Link permissions to their allowed actions',
+  },
   RESOURCE: {
     name: 'resource',
     description: 'Define system-level entities that can be protected',

@@ -4,7 +4,7 @@ import { SYSTEM_RESOURCES } from './system-resources';
 
 export const SYSTEM_PERMISSIONS = {
   ALL: {
-    name: buildPermissionName(SYSTEM_RESOURCES.ALL.name, SYSTEM_ACTIONS.ALL.name, null, null),
+    name: buildPermissionName(SYSTEM_RESOURCES.ALL.name, SYSTEM_ACTIONS.ALL.name),
     description: 'Grant all permissions',
   },
 } as const;

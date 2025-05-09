@@ -1,10 +1,10 @@
 import { DataSource, Repository } from 'typeorm';
 import { ConditionalSeeder } from '@modules/common/lib/ConditionalSeeder';
 import { Role } from '../entities/Role';
-import { Organization } from '@modules/organization/entities/Organization';
-import { SYSTEM_ORGANIZATIONS } from '@modules/common/constants/system-organizations';
 import { SYSTEM_ROLES } from '@modules/common/constants/system-role';
-import { waitForEntity } from '@modules/common/utils/waitForEntity';
+import { SYSTEM_ORGANIZATIONS } from '@modules/common/constants/system-organizations';
+import { Organization } from '@modules/organization/entities/Organization';
+import { buildRoleCode } from '@modules/common/utils/buildRoleCode';
 
 /**
  * Seeder: RoleProdSeed
@@ -13,8 +13,8 @@ import { waitForEntity } from '@modules/common/utils/waitForEntity';
  */
 export default class RoleProdSeed implements ConditionalSeeder {
   private readonly role = SYSTEM_ROLES.ADMIN;
-  private platformOrg: Organization | null = null;
   private shouldInsert = false;
+  private platformOrg: Organization | null = null;
 
   private getRepository(dataSource: DataSource): Repository<Role> {
     return dataSource.getRepository(Role);
@@ -24,16 +24,16 @@ export default class RoleProdSeed implements ConditionalSeeder {
     console.log('\n[Seeder][RoleProdSeed] ▶️ Checking if platform admin role exists...');
 
     const roleRepo = this.getRepository(dataSource);
-    const orgRepo = dataSource.getRepository(Organization);
+    const organizationRepo = dataSource.getRepository(Organization);
 
-    this.platformOrg = await waitForEntity(
-      orgRepo,
-      { name: SYSTEM_ORGANIZATIONS.PLATFORM.name },
-      'platform organization'
-    );
+    this.platformOrg = await organizationRepo.findOne({
+      where: { name: SYSTEM_ORGANIZATIONS.PLATFORM.name },
+    });
 
-    if (!this.platformOrg) return false;
-
+    if (!this.platformOrg) {
+      console.log('[Seeder][RoleProdSeed] ❌ PLATFORM organization not found!');
+      return false;
+    }
     const exists = await roleRepo.exists({
       where: {
         name: this.role.name,
@@ -52,16 +52,17 @@ export default class RoleProdSeed implements ConditionalSeeder {
   }
 
   async run(dataSource: DataSource): Promise<void> {
-    if (!this.shouldInsert || !this.platformOrg) return;
+    if (!this.shouldInsert) return;
 
     console.log('\n[Seeder][RoleProdSeed] 🚀 Running role seeder...');
     const roleRepo = this.getRepository(dataSource);
 
     await roleRepo.insert({
+      code: buildRoleCode(this.platformOrg!.id, this.role.name),
       name: this.role.name,
       description: this.role.description,
-      organization: { id: this.platformOrg.id },
       isActive: true,
+      organization: this.platformOrg!,
     });
 
     console.log(`[Seeder][RoleProdSeed] ✅ Inserted role: "${this.role.name}"`);

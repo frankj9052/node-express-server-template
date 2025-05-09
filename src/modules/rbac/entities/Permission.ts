@@ -1,5 +1,4 @@
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
-import { Action } from './Action';
 import { Resource } from './Resource';
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
 
@@ -7,7 +6,7 @@ import { BaseEntity } from '@modules/common/entities/BaseEntity';
 @Index(['name'], { unique: true })
 export class Permission extends BaseEntity {
   // 命名规则：buildPermissionName
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 512 })
   name!: string;
 
   @Column({ type: 'varchar', length: 255, default: '' })
@@ -19,9 +18,6 @@ export class Permission extends BaseEntity {
   // { "ownerOnly": true }
   @Column({ type: 'jsonb', nullable: true })
   condition?: Record<string, unknown>;
-
-  @ManyToOne(() => Action, { nullable: false })
-  action!: Action;
 
   @ManyToOne(() => Resource, { nullable: false })
   resource!: Resource;

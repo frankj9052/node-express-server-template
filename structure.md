@@ -33,23 +33,33 @@
 │   │   ├── errorHandler.ts
 │   │   └── sessionMiddleware.ts
 │   ├── migrations
-│   │   └── 1746563090604-AutoMigration.ts
+│   │   └── 1746729713091-AutoMigration.ts
 │   ├── modules
 │   │   ├── auth
 │   │   │   └── entities
 │   │   ├── common
+│   │   │   ├── constants
+│   │   │   │   ├── system-actions.ts
+│   │   │   │   ├── system-organizations.ts
+│   │   │   │   ├── system-permissions.ts
+│   │   │   │   ├── system-resources.ts
+│   │   │   │   └── system-role.ts
 │   │   │   ├── entities
 │   │   │   │   └── BaseEntity.ts
 │   │   │   ├── enums
 │   │   │   │   ├── gender.enum.ts
-│   │   │   │   ├── honorific.enum.ts
-│   │   │   │   └── role.enum.ts
+│   │   │   │   └── honorific.enum.ts
 │   │   │   ├── lib
+│   │   │   │   ├── ConditionalSeeder.ts
 │   │   │   │   └── safeCreateEnum.ts
 │   │   │   └── utils
 │   │   │       ├── buildPermissionName.ts
+│   │   │       ├── buildRolePermissionName.ts
+│   │   │       ├── buildUserOrgRoleName.ts
 │   │   │       ├── loadSeeders.ts
-│   │   │       └── path.ts
+│   │   │       ├── path.ts
+│   │   │       ├── runSeedersInOrder.ts
+│   │   │       └── waitForEntity.ts
 │   │   ├── organization
 │   │   │   ├── entities
 │   │   │   │   ├── Organization.ts
@@ -61,7 +71,8 @@
 │   │   │   ├── routes.ts
 │   │   │   ├── seeds
 │   │   │   │   ├── 01-organization-prod.seed.ts
-│   │   │   │   └── 08-userOrganizationRole.seed.ts
+│   │   │   │   └── 08-userOrgnizationRole-prod.seed.ts
+│   │   │   ├── utils
 │   │   │   └── __test__
 │   │   │       └── organization.route.test.ts
 │   │   ├── rbac

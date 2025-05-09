@@ -7,7 +7,7 @@ import { Role } from '@modules/rbac/entities/Role';
 @Entity()
 @Index('IDX_uor_name', ['name'], { unique: true })
 export class UserOrganizationRole extends BaseEntity {
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 512, nullable: false })
   name!: string;
 
   /* 外键 */

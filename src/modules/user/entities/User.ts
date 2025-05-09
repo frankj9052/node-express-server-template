@@ -65,7 +65,7 @@ export class User extends BaseEntity {
   emailVerified!: boolean;
 
   @Column({ type: 'boolean', default: true })
-  profileComplete!: boolean;
+  profileCompleted!: boolean;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   refreshToken?: string;

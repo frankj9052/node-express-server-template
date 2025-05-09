@@ -28,7 +28,7 @@ export default class UserProdSeed implements ConditionalSeeder {
       honorific: Honorific.MR,
       dateOfBirth: new Date('1970-01-01'),
       emailVerified: true,
-      profileComplete: true,
+      profileCompleted: true,
       isActive: true,
     });
 
