@@ -5,6 +5,10 @@ export const SYSTEM_ROLES = {
     name: 'admin',
     description: 'Administrator with full access',
   },
+  CLIENT: {
+    name: 'client',
+    description: 'Client with limited access',
+  },
 } as const;
 
 export type SystemRoleName = (typeof SYSTEM_ROLES)[keyof typeof SYSTEM_ROLES]['name'];

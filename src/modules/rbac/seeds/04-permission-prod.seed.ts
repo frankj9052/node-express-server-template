@@ -28,8 +28,6 @@ export default class PermissionProdSeed implements ConditionalSeeder {
 
     const repo = this.getPermissionRepo(dataSource);
     const exists = await repo.exists({ where: { name: this.permissionDef.name } });
-    console.log('name check ===> ', this.permissionDef.name);
-    console.log('exists ===> ', exists);
     if (!exists) {
       const resource = await dataSource.getRepository(Resource).findOneByOrFail({
         name: SYSTEM_RESOURCES.ALL.name,

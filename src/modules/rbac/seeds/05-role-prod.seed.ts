@@ -11,9 +11,9 @@ import { Organization } from '@modules/organization/entities/Organization';
  * Ensures the `admin` role exists in the `platform` organization.
  */
 export default class RoleProdSeed implements ConditionalSeeder {
-  private readonly role = SYSTEM_ROLES.ADMIN;
-  private shouldInsert = false;
+  // private readonly role = SYSTEM_ROLES.ADMIN;
   private platformOrg: Organization | null = null;
+  private rolesToInsert: Role[] = [];
 
   private getRepository(dataSource: DataSource): Repository<Role> {
     return dataSource.getRepository(Role);
@@ -33,39 +33,45 @@ export default class RoleProdSeed implements ConditionalSeeder {
       console.log('[Seeder][RoleProdSeed] ❌ PLATFORM organization not found!');
       return false;
     }
-    const exists = await roleRepo.exists({
-      where: {
-        name: this.role.name,
-        organization: { id: this.platformOrg.id },
-      },
-    });
 
-    if (exists) {
-      console.log('[Seeder][RoleProdSeed] ✅ Admin role for platform already exists. Skipping.\n');
-      return false;
+    for (const roleKey of Object.keys(SYSTEM_ROLES)) {
+      const systemRole = SYSTEM_ROLES[roleKey as keyof typeof SYSTEM_ROLES];
+      const exists = await roleRepo.exists({
+        where: {
+          name: systemRole.name,
+          organization: { id: this.platformOrg.id },
+        },
+      });
+
+      if (!exists) {
+        console.log(`[Seeder][RoleProdSeed] ❌ Missing role: "${systemRole.name}"`);
+        const role = roleRepo.create({
+          name: systemRole.name,
+          description: systemRole.description,
+          isActive: true,
+          organization: this.platformOrg,
+        });
+        this.rolesToInsert.push(role);
+      } else {
+        console.log(`[Seeder][RoleProdSeed] ✅ Role "${systemRole.name}" already exists.`);
+      }
     }
 
-    this.shouldInsert = true;
-    console.log('[Seeder][RoleProdSeed] ❌ Admin role missing.');
-    return true;
+    return this.rolesToInsert.length > 0;
   }
 
   async run(dataSource: DataSource): Promise<void> {
-    if (!this.shouldInsert) return;
+    if (this.rolesToInsert.length === 0) return;
 
-    console.log('\n[Seeder][RoleProdSeed] 🚀 Running role seeder...');
+    console.log('\n[Seeder][RoleProdSeed] 🚀 Inserting missing roles...');
+
     const roleRepo = this.getRepository(dataSource);
+    await roleRepo.save(this.rolesToInsert);
 
-    const role = roleRepo.create({
-      name: this.role.name,
-      description: this.role.description,
-      isActive: true,
-      organization: this.platformOrg!,
-    });
+    for (const role of this.rolesToInsert) {
+      console.log(`[Seeder][RoleProdSeed] ✅ Inserted role: "${role.name}"`);
+    }
 
-    await roleRepo.save(role); // ✅ 会触发 setCode()
-
-    console.log(`[Seeder][RoleProdSeed] ✅ Inserted role: "${this.role.name}"`);
     console.log('[Seeder][RoleProdSeed] 🎉 Role seeding completed.\n');
   }
 }

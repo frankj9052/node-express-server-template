@@ -1,6 +1,8 @@
 import Redis from 'ioredis';
 import { env } from '../config/env';
 
+export let isRedisAvailable = true;
+
 export const redisClient = new Redis(env.REDIS_URL, {
   tls: {},
   retryStrategy(times) {
@@ -29,17 +31,25 @@ export async function connectRedis() {
     }
 
     console.log('✅ Redis connection established.');
+    isRedisAvailable = true;
   } catch (error) {
     console.error('❌ Failed to connect to Redis:', error);
-    process.exit(1);
+    isRedisAvailable = false;
   }
 
   redisClient.on('error', err => {
     console.error('❗ Redis connection error:', err.message);
+    isRedisAvailable = false;
   });
 
   redisClient.on('end', () => {
     console.warn('🔌 Redis connection closed.');
+    isRedisAvailable = false;
+  });
+
+  redisClient.on('ready', () => {
+    console.log('🔁 Redis reconnected.');
+    isRedisAvailable = true;
   });
 }
 

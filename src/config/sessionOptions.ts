@@ -2,7 +2,7 @@ import session from 'express-session';
 import { RedisStore } from 'connect-redis';
 import crypto from 'crypto';
 import { env } from './env';
-import { redisClient } from 'infrastructure/redis';
+import { isRedisAvailable, redisClient } from 'infrastructure/redis';
 
 // 自定义加密器（AES-256-CBC 示例）
 const encrypt = (text: string) => {
@@ -28,23 +28,30 @@ const decrypt = (text: string) => {
   return decrypted.toString();
 };
 
-export const sessionOptions: session.SessionOptions = {
-  store: new RedisStore({
-    client: redisClient,
-    serializer: {
-      stringify: session => encrypt(JSON.stringify(session)),
-      parse: data => JSON.parse(decrypt(data)),
+export const getSessionOptions = (): session.SessionOptions => {
+  const useRedis = isRedisAvailable;
+
+  return {
+    store: useRedis
+      ? new RedisStore({
+          client: redisClient,
+          prefix: 'sess:',
+          serializer: {
+            stringify: session => encrypt(JSON.stringify(session)),
+            parse: data => JSON.parse(decrypt(data)),
+          },
+          disableTouch: true,
+        })
+      : undefined, // fallback to MemoryStore
+    secret: env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: {
+      httpOnly: true,
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     },
-    prefix: 'sess:', // 可以自定义 Redis 键前缀（可选）
-  }),
-  secret: env.SESSION_SECRET!,
-  resave: false,
-  saveUninitialized: false,
-  proxy: true, // 重要！如果 behind proxy (比如 nginx)
-  cookie: {
-    httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 天
-  },
+  };
 };
