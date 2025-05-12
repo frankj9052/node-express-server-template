@@ -4,8 +4,9 @@ import { env } from './config/env';
 import { connectDatabase } from './infrastructure/database';
 import { closeRedisConnection, connectRedis, redisClient } from './infrastructure/redis';
 import { sessionMiddleware } from './middlewares/sessionMiddleware';
-
 import { Server } from 'http';
+import { logger } from '@modules/common/lib/logger';
+import * as Sentry from '@sentry/node';
 
 let server: Server;
 
@@ -36,7 +37,8 @@ async function startServer() {
 
     /* -------- 全局异常与信号处理 -------- */
     process.on('unhandledRejection', reason => {
-      console.error('❗ Unhandled Rejection:', reason);
+      logger.error('❗ Unhandled Rejection:', reason);
+      Sentry.captureException(reason as any);
       shutdown(1);
     });
 

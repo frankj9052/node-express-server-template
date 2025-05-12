@@ -27,6 +27,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@sentry/node": "^9.17.0",
+    "@sentry/tracing": "^7.120.3",
     "argon2": "^0.43.0",
     "connect-redis": "^8.0.3",
     "cookie-parser": "^1.4.7",
@@ -35,6 +37,7 @@
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "fast-glob": "^3.3.3",
+    "http-status-codes": "^2.3.0",
     "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.15.5",
@@ -44,6 +47,9 @@
     "typeorm": "^0.3.22",
     "typeorm-extension": "^3.7.1",
     "typeorm-naming-strategies": "^4.1.0",
+    "uuid": "^11.1.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {
@@ -64,6 +70,7 @@
     "@types/supertest": "^6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.31.0",
     "@typescript-eslint/parser": "^8.31.0",
     "cross-env": "^7.0.3",

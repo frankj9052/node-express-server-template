@@ -10,6 +10,9 @@
 ├── .prettierrc
 ├── eslint.config.js
 ├── jest.config.cjs
+├── logs
+│   ├── .6d1f175736eeb1d938a9f3a7c77eb600c09aa67d-audit.json
+│   └── 2025-05-12.log
 ├── package-lock.json
 ├── package.json
 ├── scripts
@@ -30,10 +33,12 @@
 │   │   └── registerRoutes.ts
 │   ├── middlewares
 │   │   ├── authMiddleware.ts
+│   │   ├── currentUser.ts
 │   │   ├── errorHandler.ts
+│   │   ├── requestId.ts
 │   │   └── sessionMiddleware.ts
 │   ├── migrations
-│   │   └── 1746729713091-AutoMigration.ts
+│   │   └── 1746819937753-AutoMigration.ts
 │   ├── modules
 │   │   ├── auth
 │   │   │   └── entities
@@ -49,11 +54,24 @@
 │   │   │   ├── enums
 │   │   │   │   ├── gender.enum.ts
 │   │   │   │   └── honorific.enum.ts
+│   │   │   ├── errors
+│   │   │   │   ├── BadRequestError.ts
+│   │   │   │   ├── BaseError.ts
+│   │   │   │   ├── DatabaseConnectionError.ts
+│   │   │   │   ├── FileNotFoundError.ts
+│   │   │   │   ├── InternalServerError.ts
+│   │   │   │   ├── InvocationError.ts
+│   │   │   │   ├── NotAuthorizedError.ts
+│   │   │   │   ├── NotFoundError.ts
+│   │   │   │   ├── UnauthorizedError.ts
+│   │   │   │   └── ValidationError.ts
 │   │   │   ├── lib
 │   │   │   │   ├── ConditionalSeeder.ts
+│   │   │   │   ├── logger.ts
 │   │   │   │   └── safeCreateEnum.ts
 │   │   │   └── utils
 │   │   │       ├── buildPermissionName.ts
+│   │   │       ├── buildRoleCode.ts
 │   │   │       ├── buildRolePermissionName.ts
 │   │   │       ├── buildUserOrgRoleName.ts
 │   │   │       ├── loadSeeders.ts
@@ -79,6 +97,7 @@
 │   │   │   ├── entities
 │   │   │   │   ├── Action.ts
 │   │   │   │   ├── Permission.ts
+│   │   │   │   ├── PermissionAction.ts
 │   │   │   │   ├── Resource.ts
 │   │   │   │   ├── Role.ts
 │   │   │   │   └── RolePermission.ts
@@ -116,8 +135,11 @@
 │   ├── swagger
 │   │   ├── swagger.ts
 │   │   └── swaggerOptions.ts
-│   └── test
-│       └── setup.ts
+│   ├── test
+│   │   └── setup.ts
+│   └── types
+│       └── express
+│           └── index.d.ts
 ├── structure.md
 └── tsconfig.json
 
