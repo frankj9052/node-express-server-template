@@ -4,7 +4,9 @@ import fg from 'fast-glob';
 import { getCurrentDirname } from '@modules/common/utils/path';
 import { pathToFileURL } from 'url';
 import { NotFoundError } from '@modules/common/errors/NotFoundError';
+import { createLoggerWithContext } from '@modules/common/lib/logger';
 
+const logger = createLoggerWithContext('Router');
 /**
  * 扫描 src/modules/任意文件夹/routes.ts 并调用其中导出的 register(app) 方法。
  * 每个模块只需在 routes.ts 里写：
@@ -19,6 +21,7 @@ export async function registerRoutes(parent: Router) {
     '../modules/**/routes.{ts,js}'
   );
   const files = await fg(pattern, { absolute: true });
+  logger.info(`🔍 Found ${files.length} route files`);
 
   // 顺序无所谓，用 for-of 可保证 await 按次序执行
   for (const file of files) {
@@ -26,11 +29,12 @@ export async function registerRoutes(parent: Router) {
       const mod = await import(pathToFileURL(file).href);
       if (typeof mod.register === 'function') {
         mod.register(parent);
+        logger.info(`✅ Registered routes from: ${path.basename(file)}`);
       } else {
-        console.warn(`[router] ${file} does not have a register(app) export —— skipped`);
+        logger.warn(`⚠️ No register(app) export in: ${path.basename(file)} — skipped`);
       }
     } catch (error) {
-      console.error(`❌ Error while registering route from ${file}:`, error);
+      logger.error(`❌ Error registering route from: ${path.basename(file)}`, error);
     }
   }
 
@@ -38,5 +42,5 @@ export async function registerRoutes(parent: Router) {
   parent.all(/.*/, () => {
     throw new NotFoundError();
   });
-  console.log(`🛣️  ${files.length} route files registered`);
+  logger.info(`🛣️ Route registration complete: ${files.length} files processed`);
 }

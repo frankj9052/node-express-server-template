@@ -1,7 +1,7 @@
 import { DataSource, Repository } from 'typeorm';
-import { ConditionalSeeder } from '@modules/common/lib/ConditionalSeeder';
 import { Resource } from '../entities/Resource';
 import { SYSTEM_RESOURCES } from '@modules/common/constants/system-resources';
+import { BaseSeeder } from '@modules/common/lib/BaseSeeder';
 
 /**
  * Seeder: ResourceProdSeed
@@ -9,7 +9,7 @@ import { SYSTEM_RESOURCES } from '@modules/common/constants/system-resources';
  * Inserts essential resources used for permission control.
  * Only inserts missing ones (ensures idempotency).
  */
-export default class ResourceProdSeed implements ConditionalSeeder {
+export default class ResourceProdSeed extends BaseSeeder {
   private getRepository(dataSource: DataSource): Repository<Resource> {
     return dataSource.getRepository(Resource);
   }
@@ -29,7 +29,7 @@ export default class ResourceProdSeed implements ConditionalSeeder {
   private missingResources: Array<Pick<Resource, 'name' | 'description'>> = [];
 
   async shouldRun(dataSource: DataSource): Promise<boolean> {
-    console.log('\n[Seeder][ResourceProdSeed] ▶️ Checking for required resources...');
+    this.logger.info('🔍 Checking for required resources...');
     const repo = this.getRepository(dataSource);
     this.missingResources = [];
 
@@ -37,27 +37,30 @@ export default class ResourceProdSeed implements ConditionalSeeder {
       const exists = await repo.exists({ where: { name: resource.name } });
       if (!exists) {
         this.missingResources.push(resource);
-        console.log(`[Seeder][ResourceProdSeed] ❌ Missing resource: "${resource.name}"`);
+        this.logger.warn(`❌ Missing resource: "${resource.name}"`);
       }
     }
 
     if (this.missingResources.length > 0) {
+      this.logger.info(`🚨 ${this.missingResources.length} resource(s) will be inserted.`);
       return true;
     }
 
-    console.log('[Seeder][ResourceProdSeed] ✅ All resources already exist. Skipping seeder.\n');
+    this.logger.info('✅ All resources already exist. Skipping.');
     return false;
   }
 
   async run(dataSource: DataSource): Promise<void> {
-    console.log('\n[Seeder][ResourceProdSeed] 🚀 Running resource seeder...');
+    this.logger.info('🚀 Running resource seeder...');
     const repo = this.getRepository(dataSource);
 
     for (const resource of this.missingResources) {
       await repo.insert(resource);
-      console.log(`[Seeder][ResourceProdSeed] ✅ Inserted resource: "${resource.name}"`);
+      this.logger.info(`✅ Inserted resource: "${resource.name}"`);
     }
 
-    console.log('[Seeder][ResourceProdSeed] 🎉 Resource seeding completed.\n');
+    this.logger.info(
+      `🎉 Resource Seeding Completed. Total inserted: ${this.missingResources.length}`
+    );
   }
 }

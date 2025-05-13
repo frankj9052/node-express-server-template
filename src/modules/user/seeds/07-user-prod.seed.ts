@@ -1,21 +1,28 @@
 import { DataSource } from 'typeorm';
-import { ConditionalSeeder } from '@modules/common/lib/ConditionalSeeder';
 import { User } from '../entities/User';
 import { Gender } from '@modules/common/enums/gender.enum';
 import { Honorific } from '@modules/common/enums/honorific.enum';
 import { env } from 'config/env';
+import { BaseSeeder } from '@modules/common/lib/BaseSeeder';
 
-export default class UserProdSeed implements ConditionalSeeder {
+export default class UserProdSeed extends BaseSeeder {
   private readonly email = env.SUPER_ADMIN_EMAIL;
   private readonly password = env.SUPER_ADMIN_PASSWORD;
 
   async shouldRun(dataSource: DataSource): Promise<boolean> {
+    this.logger.info('🔍 Checking if super admin user exists...');
     const userRepo = dataSource.getRepository(User);
     const exists = await userRepo.exists({ where: { email: this.email } });
-    return !exists;
+    if (exists) {
+      this.logger.info(`✅ Super admin user "${this.email}" already exists. Skipping.`);
+      return false;
+    }
+    return true;
   }
 
   async run(dataSource: DataSource): Promise<void> {
+    this.logger.info('🚀 Creating super admin user...');
+
     const userRepo = dataSource.getRepository(User);
 
     const user = userRepo.create({
@@ -34,6 +41,6 @@ export default class UserProdSeed implements ConditionalSeeder {
 
     await userRepo.save(user);
 
-    console.log(`[Seeder][UserProdSeed] ✅ Inserted super admin user: ${this.email}`);
+    this.logger.info(`✅ Super admin user created: ${this.email}`);
   }
 }

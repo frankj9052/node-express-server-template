@@ -6,7 +6,6 @@ import { corsOptions } from './config/corsOptions';
 import cookieParser from 'cookie-parser';
 import { registerRoutes } from './loaders/registerRoutes';
 import { requestId } from 'middlewares/requestId';
-import { NotFoundError } from '@modules/common/errors/NotFoundError';
 import { errorHandler } from 'middlewares/errorHandler';
 
 /**

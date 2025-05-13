@@ -1,7 +1,7 @@
 import { DataSource, Repository } from 'typeorm';
 import { Organization } from '../entities/Organization';
-import { ConditionalSeeder } from '@modules/common/lib/ConditionalSeeder';
 import { SYSTEM_ORGANIZATIONS } from '@modules/common/constants/system-organizations';
+import { BaseSeeder } from '@modules/common/lib/BaseSeeder';
 
 /**
  * Seeder: OrganizationProdSeed
@@ -9,7 +9,7 @@ import { SYSTEM_ORGANIZATIONS } from '@modules/common/constants/system-organizat
  * Inserts essential organizations used by the platform.
  * Only inserts missing ones (ensures idempotency).
  */
-export default class OrganizationProdSeed implements ConditionalSeeder {
+export default class OrganizationProdSeed extends BaseSeeder {
   private getRepository(dataSource: DataSource): Repository<Organization> {
     return dataSource.getRepository(Organization);
   }
@@ -22,7 +22,7 @@ export default class OrganizationProdSeed implements ConditionalSeeder {
   private missingOrganizations: Array<Pick<Organization, 'name' | 'description'>> = [];
 
   async shouldRun(dataSource: DataSource): Promise<boolean> {
-    console.log('\n[Seeder][OrganizationProdSeed] ▶️ Checking for required organizations...');
+    this.logger.info('🔍 Checking for required organizations...');
     const repo = this.getRepository(dataSource);
     this.missingOrganizations = [];
 
@@ -30,27 +30,30 @@ export default class OrganizationProdSeed implements ConditionalSeeder {
       const exists = await repo.exists({ where: { name: org.name } });
       if (!exists) {
         this.missingOrganizations.push(org);
-        console.log(`[Seeder][OrganizationProdSeed] ❌ Missing organization: "${org.name}"`);
+        this.logger.warn(`❌ Missing: "${org.name}"`);
       }
     }
 
     if (this.missingOrganizations.length > 0) {
+      this.logger.info(
+        `🚨 ${this.missingOrganizations.length} missing organizations will be inserted.`
+      );
       return true;
     }
 
-    console.log('[Seeder][OrganizationProdSeed] ✅ All organizations already exist. Skipping.\n');
+    this.logger.info('✅ All required organizations already exist. Skipping.');
     return false;
   }
 
   async run(dataSource: DataSource): Promise<void> {
-    console.log('\n[Seeder][OrganizationProdSeed] 🚀 Running organization seeder...');
+    this.logger.info('🚀 Running organization seeder...');
     const repo = this.getRepository(dataSource);
 
     for (const org of this.missingOrganizations) {
       await repo.insert(org);
-      console.log(`[Seeder][OrganizationProdSeed] ✅ Inserted organization: "${org.name}"`);
+      this.logger.info(`✅ Inserted organization: "${org.name}"`);
     }
 
-    console.log('[Seeder][OrganizationProdSeed] 🎉 Organization seeding completed.\n');
+    this.logger.info(`🎉 Completed. Total inserted: ${this.missingOrganizations.length}`);
   }
 }

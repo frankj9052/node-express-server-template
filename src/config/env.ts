@@ -8,6 +8,8 @@ const baseSchema = z.object({
   PORT: z.string().default('4000'),
   JWT_SECRET: z.string(),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  LOG_TO_FILE: z.string().default('false'),
+  SENTRY_DSN: z.string().optional(),
   DATABASE_URL: z.string().optional(), // SaaS URL，如 Neon
   DATABASE_SSL: z.string().default('true'),
   ENABLE_SEEDERS: z.string().default('true'),

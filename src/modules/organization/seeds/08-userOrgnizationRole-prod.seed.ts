@@ -1,5 +1,4 @@
 import { DataSource } from 'typeorm';
-import { ConditionalSeeder } from '@modules/common/lib/ConditionalSeeder';
 import { User } from '@modules/user/entities/User';
 import { Role } from '@modules/rbac/entities/Role';
 import { Organization } from '@modules/organization/entities/Organization';
@@ -7,8 +6,9 @@ import { UserOrganizationRole } from '@modules/organization/entities/UserOrganiz
 import { SYSTEM_ORGANIZATIONS } from '@modules/common/constants/system-organizations';
 import { SYSTEM_ROLES } from '@modules/common/constants/system-role';
 import { waitForEntity } from '@modules/common/utils/waitForEntity';
+import { BaseSeeder } from '@modules/common/lib/BaseSeeder';
 
-export default class UserOrganizationRoleProdSeed implements ConditionalSeeder {
+export default class UserOrganizationRoleProdSeed extends BaseSeeder {
   private readonly email = process.env.SUPER_ADMIN_EMAIL!;
   private shouldInsert = false;
   private user: User | null = null;
@@ -16,7 +16,7 @@ export default class UserOrganizationRoleProdSeed implements ConditionalSeeder {
   private org: Organization | null = null;
 
   async shouldRun(dataSource: DataSource): Promise<boolean> {
-    console.log('\n[Seeder][UserOrganizationRoleProdSeed] ▶️ Checking user-org-role link...');
+    this.logger.info('🔍 Checking user-org-role link...');
 
     const uorRepo = dataSource.getRepository(UserOrganizationRole);
     const userRepo = dataSource.getRepository(User);
@@ -38,7 +38,10 @@ export default class UserOrganizationRoleProdSeed implements ConditionalSeeder {
       'admin role in platform'
     );
 
-    if (!this.user || !this.org || !this.role) return false;
+    if (!this.user || !this.org || !this.role) {
+      this.logger.warn('⚠️ Missing required entities. Seeder will not run.');
+      return false;
+    }
 
     const exists = await uorRepo.exists({
       where: {
@@ -49,19 +52,22 @@ export default class UserOrganizationRoleProdSeed implements ConditionalSeeder {
     });
 
     if (exists) {
-      console.log('[Seeder][UserOrganizationRoleProdSeed] ✅ Link already exists. Skipping.\n');
+      this.logger.info('✅ Link already exists. Skipping.');
       return false;
     }
 
     this.shouldInsert = true;
-    console.log('[Seeder][UserOrganizationRoleProdSeed] ❌ Link missing. Will insert.');
+    this.logger.warn('❌ Link missing. Will insert.');
     return true;
   }
 
   async run(dataSource: DataSource): Promise<void> {
-    if (!this.shouldInsert || !this.user || !this.org || !this.role) return;
+    if (!this.shouldInsert || !this.user || !this.org || !this.role) {
+      this.logger.warn('⚠️ Required entities not available. Run aborted.');
+      return;
+    }
 
-    console.log('\n[Seeder][UserOrganizationRoleProdSeed] 🚀 Running UOR seeder...');
+    this.logger.info('🚀 Running UOR seeder...');
 
     const uorRepo = dataSource.getRepository(UserOrganizationRole);
 
@@ -75,6 +81,6 @@ export default class UserOrganizationRoleProdSeed implements ConditionalSeeder {
     // 会触发 @BeforeInsert() 自动设置 name 字段
     await uorRepo.save(uor);
 
-    console.log('[Seeder][UserOrganizationRoleProdSeed] ✅ Linked user to platform-admin role\n');
+    this.logger.info('✅ Linked user to platform-admin role');
   }
 }

@@ -1,18 +1,18 @@
 import { DataSource, Repository } from 'typeorm';
-import { ConditionalSeeder } from '@modules/common/lib/ConditionalSeeder';
 import { Role } from '../entities/Role';
 import { Permission } from '../entities/Permission';
 import { RolePermission } from '../entities/RolePermission';
 import { SYSTEM_PERMISSIONS } from '@modules/common/constants/system-permissions';
 import { SYSTEM_ROLES } from '@modules/common/constants/system-role';
 import { waitForEntity } from '@modules/common/utils/waitForEntity';
+import { BaseSeeder } from '@modules/common/lib/BaseSeeder';
 
 /**
  * Seeder: RolePermissionProdSeed
  *
  * Grants the `admin` role the `*:*:*:*` permission.
  */
-export default class RolePermissionProdSeed implements ConditionalSeeder {
+export default class RolePermissionProdSeed extends BaseSeeder {
   private readonly roleName = SYSTEM_ROLES.ADMIN.name;
   private readonly permissionName = SYSTEM_PERMISSIONS.ALL.name;
 
@@ -25,7 +25,7 @@ export default class RolePermissionProdSeed implements ConditionalSeeder {
   }
 
   async shouldRun(dataSource: DataSource): Promise<boolean> {
-    console.log('\n[Seeder][RolePermissionProdSeed] ▶️ Checking if role-permission link exists...');
+    this.logger.info('🔍 Checking if role-permission link exists...');
 
     const roleRepo = dataSource.getRepository(Role);
     const permRepo = dataSource.getRepository(Permission);
@@ -38,7 +38,10 @@ export default class RolePermissionProdSeed implements ConditionalSeeder {
       `permission "${this.permissionName}"`
     );
 
-    if (!this.role || !this.permission) return false;
+    if (!this.role || !this.permission) {
+      this.logger.warn('⚠️ Required role or permission not found. Skipping.');
+      return false;
+    }
 
     const exists = await rpRepo.exists({
       where: {
@@ -48,21 +51,22 @@ export default class RolePermissionProdSeed implements ConditionalSeeder {
     });
 
     if (exists) {
-      console.log('[Seeder][RolePermissionProdSeed] ✅ Link already exists. Skipping.\n');
+      this.logger.info('✅ Link already exists. Skipping.');
       return false;
     }
 
     this.shouldInsert = true;
-    console.log(
-      `[Seeder][RolePermissionProdSeed] ❌ Missing link: ${this.roleName} → ${this.permissionName}`
-    );
+    this.logger.warn(`❌ Missing link: ${this.roleName} → ${this.permissionName}`);
     return true;
   }
 
   async run(dataSource: DataSource): Promise<void> {
-    if (!this.shouldInsert || !this.role || !this.permission) return;
+    if (!this.shouldInsert || !this.role || !this.permission) {
+      this.logger.warn('⚠️ Skip run(): missing data or already satisfied.');
+      return;
+    }
 
-    console.log('\n[Seeder][RolePermissionProdSeed] 🚀 Running role-permission seeder...');
+    this.logger.info('🚀 Creating role-permission link...');
     const rpRepo = this.getRepository(dataSource);
 
     const rolePermission = rpRepo.create({
@@ -74,9 +78,7 @@ export default class RolePermissionProdSeed implements ConditionalSeeder {
     // ✅ 会触发 @BeforeInsert() 自动生成 name 字段
     await rpRepo.save(rolePermission);
 
-    console.log(
-      `[Seeder][RolePermissionProdSeed] ✅ Granted "${this.permissionName}" to role "${this.roleName}"`
-    );
-    console.log('[Seeder][RolePermissionProdSeed] 🎉 Role-permission seeding completed.\n');
+    this.logger.info(`✅ Granted "${this.permissionName}" to role "${this.roleName}"`);
+    this.logger.info('🎉 Role-permission seeding completed.');
   }
 }

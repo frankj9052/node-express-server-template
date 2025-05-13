@@ -1,19 +1,22 @@
 import Redis from 'ioredis';
 import { env } from '../config/env';
+import { createLoggerWithContext } from '@modules/common/lib/logger';
 
+const logger = createLoggerWithContext('Redis');
 export let isRedisAvailable = true;
 
 export const redisClient = new Redis(env.REDIS_URL, {
   tls: {},
   retryStrategy(times) {
     const delay = Math.min(times * 3000, 10000);
-    console.warn(`⚠️ Redis reconnect attempt #${times}, retrying in ${delay} ms`);
+    logger.warn(`⚠️ Reconnect attempt #${times}, retrying in ${delay} ms`);
     return delay;
   },
 });
 
 export async function connectRedis() {
   try {
+    logger.info('🔌 Connecting...');
     // 等待 Redis 客户端 ready
     await new Promise<void>((resolve, reject) => {
       if (redisClient.status === 'ready') {
@@ -30,37 +33,37 @@ export async function connectRedis() {
       throw new Error('Redis ping failed');
     }
 
-    console.log('✅ Redis connection established.');
     isRedisAvailable = true;
+    logger.info('✅ Connection established and ping verified.');
   } catch (error) {
-    console.error('❌ Failed to connect to Redis:', error);
     isRedisAvailable = false;
+    logger.error('❌ Failed to connect or ping Redis', error);
   }
 
   redisClient.on('error', err => {
-    console.error('❗ Redis connection error:', err.message);
     isRedisAvailable = false;
+    logger.error('❗ Connection error', err);
   });
 
   redisClient.on('end', () => {
-    console.warn('🔌 Redis connection closed.');
     isRedisAvailable = false;
+    logger.warn('🔌 Connection closed.');
   });
 
   redisClient.on('ready', () => {
-    console.log('🔁 Redis reconnected.');
     isRedisAvailable = true;
+    logger.info('🔁 Connection ready.');
   });
 }
 
 export async function closeRedisConnection() {
   if (redisClient) {
-    console.log('🧹 Closing Redis connection...');
+    logger.info('🧹 Closing connection...');
     try {
       await redisClient.quit();
-      console.log('🛑 Redis client disconnected.');
+      logger.info('🛑 Connection closed cleanly.');
     } catch (error) {
-      console.error('❗ Error closing Redis connection:', error);
+      logger.error('❗ Error while closing connection', error);
     }
   }
 }

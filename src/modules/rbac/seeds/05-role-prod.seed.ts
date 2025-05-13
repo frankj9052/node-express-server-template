@@ -1,16 +1,16 @@
 import { DataSource, Repository } from 'typeorm';
-import { ConditionalSeeder } from '@modules/common/lib/ConditionalSeeder';
 import { Role } from '../entities/Role';
 import { SYSTEM_ROLES } from '@modules/common/constants/system-role';
 import { SYSTEM_ORGANIZATIONS } from '@modules/common/constants/system-organizations';
 import { Organization } from '@modules/organization/entities/Organization';
+import { BaseSeeder } from '@modules/common/lib/BaseSeeder';
 
 /**
  * Seeder: RoleProdSeed
  *
  * Ensures the `admin` role exists in the `platform` organization.
  */
-export default class RoleProdSeed implements ConditionalSeeder {
+export default class RoleProdSeed extends BaseSeeder {
   // private readonly role = SYSTEM_ROLES.ADMIN;
   private platformOrg: Organization | null = null;
   private rolesToInsert: Role[] = [];
@@ -20,7 +20,7 @@ export default class RoleProdSeed implements ConditionalSeeder {
   }
 
   async shouldRun(dataSource: DataSource): Promise<boolean> {
-    console.log('\n[Seeder][RoleProdSeed] ▶️ Checking if platform admin role exists...');
+    this.logger.info('🔍 Checking for platform roles...');
 
     const roleRepo = this.getRepository(dataSource);
     const organizationRepo = dataSource.getRepository(Organization);
@@ -30,7 +30,7 @@ export default class RoleProdSeed implements ConditionalSeeder {
     });
 
     if (!this.platformOrg) {
-      console.log('[Seeder][RoleProdSeed] ❌ PLATFORM organization not found!');
+      this.logger.error('❌ PLATFORM organization not found!');
       return false;
     }
 
@@ -44,7 +44,8 @@ export default class RoleProdSeed implements ConditionalSeeder {
       });
 
       if (!exists) {
-        console.log(`[Seeder][RoleProdSeed] ❌ Missing role: "${systemRole.name}"`);
+        this.logger.warn(`❌ Missing role: "${systemRole.name}"`);
+
         const role = roleRepo.create({
           name: systemRole.name,
           description: systemRole.description,
@@ -53,7 +54,7 @@ export default class RoleProdSeed implements ConditionalSeeder {
         });
         this.rolesToInsert.push(role);
       } else {
-        console.log(`[Seeder][RoleProdSeed] ✅ Role "${systemRole.name}" already exists.`);
+        this.logger.info(`✅ Role exists: "${systemRole.name}"`);
       }
     }
 
@@ -61,17 +62,20 @@ export default class RoleProdSeed implements ConditionalSeeder {
   }
 
   async run(dataSource: DataSource): Promise<void> {
-    if (this.rolesToInsert.length === 0) return;
+    if (this.rolesToInsert.length === 0 || !this.platformOrg) {
+      this.logger.warn('⚠️ No roles to insert or organization not found. Skipping.');
+      return;
+    }
 
-    console.log('\n[Seeder][RoleProdSeed] 🚀 Inserting missing roles...');
+    this.logger.info('🚀 Inserting missing roles...');
 
     const roleRepo = this.getRepository(dataSource);
     await roleRepo.save(this.rolesToInsert);
 
     for (const role of this.rolesToInsert) {
-      console.log(`[Seeder][RoleProdSeed] ✅ Inserted role: "${role.name}"`);
+      this.logger.info(`✅ Inserted role: "${role.name}"`);
     }
 
-    console.log('[Seeder][RoleProdSeed] 🎉 Role seeding completed.\n');
+    this.logger.info(`🎉 Role seeding completed. Total inserted: ${this.rolesToInsert.length}`);
   }
 }

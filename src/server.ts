@@ -5,15 +5,18 @@ import { connectDatabase } from './infrastructure/database';
 import { closeRedisConnection, connectRedis, redisClient } from './infrastructure/redis';
 import { sessionMiddleware } from './middlewares/sessionMiddleware';
 import { Server } from 'http';
-import { logger } from '@modules/common/lib/logger';
+import { createLoggerWithContext, logger } from '@modules/common/lib/logger';
 import * as Sentry from '@sentry/node';
 
 let server: Server;
+let isShuttingDown = false;
+
+const serverLogger = createLoggerWithContext('Server');
 
 /** 服务启动入口（所有异步 await 都集中在这里） */
 async function startServer() {
   try {
-    console.log('🚀 Starting server...');
+    serverLogger.info('🚀 Starting server...');
 
     // 1. 初始化数据库（含种子）
     await connectDatabase({
@@ -31,50 +34,60 @@ async function startServer() {
 
     // 4. 启动 HTTP 服务器
     server = app.listen(Number(env.PORT), () => {
-      console.log(`🚀 Server running at http://localhost:${env.PORT}`);
-      console.log(`📚 Swagger docs available at http://localhost:${env.PORT}/api-docs`);
+      serverLogger.info(`🚀 Server running at http://localhost:${env.PORT}`);
+      serverLogger.info(`📚 Swagger docs available at http://localhost:${env.PORT}/api-docs`);
     });
 
     /* -------- 全局异常与信号处理 -------- */
-    process.on('unhandledRejection', reason => {
-      logger.error('❗ Unhandled Rejection:', reason);
-      Sentry.captureException(reason as any);
+    process.on('unhandledRejection', error => {
+      serverLogger.error('❗ Unhandled Rejection:', error);
+      Sentry.captureException(error);
       shutdown(1);
     });
 
     process.on('uncaughtException', error => {
-      console.error('❗ Uncaught Exception:', error);
+      serverLogger.error('❗ Uncaught Exception:', error);
+      Sentry.captureException(error);
       shutdown(1);
     });
 
-    process.on('SIGINT', () => shutdown(0));
-    process.on('SIGTERM', () => shutdown(0));
+    process.on('SIGINT', () => {
+      logger.warn('📴 Received SIGINT');
+      shutdown(0);
+    });
+
+    process.on('SIGTERM', () => {
+      serverLogger.warn('📴 Received SIGTERM');
+      shutdown(0);
+    });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    serverLogger.error('❌ Server failed to start', error);
     process.exit(1);
   }
 }
 
 /** 优雅关闭 */
 async function shutdown(exitCode: number) {
-  console.log('🧹 Shutting down server...');
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  serverLogger.info('🧹 Shutting down server...');
 
   try {
     if (server) {
       await new Promise<void>((resolve, reject) => {
         server.close(err => (err ? reject(err) : resolve()));
       });
-      console.log('🛑 HTTP server closed.');
+      serverLogger.info('🛑 HTTP server closed.');
     }
     if (redisClient) {
       await closeRedisConnection();
     }
     if (AppDataSource.isInitialized) {
       await AppDataSource.destroy();
-      console.log('🛑 Database connection closed.');
+      serverLogger.info('🛑 Database connection closed.');
     }
   } catch (error) {
-    console.error('❗ Error during shutdown:', error);
+    serverLogger.error('❗ Error during shutdown:', error);
   } finally {
     process.exit(exitCode);
   }
