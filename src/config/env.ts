@@ -1,7 +1,10 @@
+import { createLoggerWithContext } from '@modules/common/lib/logger';
 import dotenvFlow from 'dotenv-flow';
 import { z } from 'zod';
 
 dotenvFlow.config();
+
+const logger = createLoggerWithContext('Config');
 
 const baseSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -57,12 +60,13 @@ const extendedSchema = baseSchema
     }
   });
 
-const _env = extendedSchema.safeParse(process.env);
+const parsed = extendedSchema.safeParse(process.env);
 
-if (!_env.success) {
-  console.error('❌ Invalid environment variables! Please check below for details:');
-  console.error(_env.error.flatten().fieldErrors);
+if (!parsed.success) {
+  logger.error('❌ Invalid environment variables!', {
+    errors: parsed.error.flatten().fieldErrors,
+  });
   process.exit(1);
 }
 
-export const env = _env.data;
+export const env = parsed.data;
