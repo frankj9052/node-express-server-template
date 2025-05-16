@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import express, { Router } from 'express';
 import cors from 'cors';
-import { swaggerDocs } from './swagger/swagger';
+import { generateSwaggerDocs } from './swagger/swagger';
 import { corsOptions } from './config/corsOptions';
 import cookieParser from 'cookie-parser';
 import { registerRoutes } from './loaders/registerRoutes';
@@ -24,9 +24,6 @@ export async function createApp() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // ---- Swagger ----
-  app.use('/api-docs', swaggerDocs.serve, swaggerDocs.setup);
-
   // 其它中间件
   app.use(requestId);
 
@@ -34,6 +31,9 @@ export async function createApp() {
   const apiRouter = Router();
   await registerRoutes(apiRouter);
   app.use('/api', apiRouter);
+
+  // ---- Swagger ----
+  generateSwaggerDocs(app);
 
   // ---- 全局错误处理器 ----
   app.use(errorHandler);

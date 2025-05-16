@@ -13,6 +13,8 @@ if (env.NODE_ENV === 'production' && env.SENTRY_DSN) {
   Sentry.init({
     dsn: env.SENTRY_DSN,
     tracesSampleRate: 0, // 如果需要 APM 请调高；这里只做 error 汇报
+    release: `noqclinic@${env.APP_VERSION ?? 'dev'}`,
+    enabled: env.NODE_ENV === 'production',
   });
 }
 /* ────────────────────────────────────────────────────────────────────────────

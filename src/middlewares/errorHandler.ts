@@ -1,11 +1,17 @@
 import { BaseError } from '@modules/common/errors/BaseError';
 import { InternalServerError } from '@modules/common/errors/InternalServerError';
-import { logger } from '@sentry/core';
 import { env } from 'config/env';
 import { NextFunction, Request, Response } from 'express';
 import * as Sentry from '@sentry/node';
+import { logger } from '@modules/common/lib/logger';
 
 export const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction) => {
+  // Debug：避免重复实例问题
+  // if (env.NODE_ENV === 'development') {
+  //   console.error('[DEBUG] error instanceof BaseError:', err instanceof BaseError);
+  //   console.error('[DEBUG] err.constructor.name:', err.constructor.name);
+  // }
+
   // 1. 统一封装
   const appError =
     err instanceof BaseError

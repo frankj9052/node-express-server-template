@@ -25,16 +25,17 @@ export async function registerRoutes(parent: Router) {
 
   // 顺序无所谓，用 for-of 可保证 await 按次序执行
   for (const file of files) {
+    const modulePath = file.split('/modules/')[1]?.replace(/\\/g, '/');
     try {
       const mod = await import(pathToFileURL(file).href);
       if (typeof mod.register === 'function') {
         mod.register(parent);
-        logger.info(`✅ Registered routes from: ${path.basename(file)}`);
+        logger.info(`✅ Registered routes from: ${modulePath}`);
       } else {
-        logger.warn(`⚠️ No register(app) export in: ${path.basename(file)} — skipped`);
+        logger.warn(`⚠️ No register(app) export in: ${modulePath} — skipped`);
       }
     } catch (error) {
-      logger.error(`❌ Error registering route from: ${path.basename(file)}`, error);
+      logger.error(`❌ Error registering route from: ${modulePath}`, error);
     }
   }
 

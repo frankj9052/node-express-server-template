@@ -1,10 +1,7 @@
-import { createLoggerWithContext } from '@modules/common/lib/logger';
 import dotenvFlow from 'dotenv-flow';
 import { z } from 'zod';
 
 dotenvFlow.config();
-
-const logger = createLoggerWithContext('Config');
 
 const baseSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -17,6 +14,7 @@ const baseSchema = z.object({
   DATABASE_SSL: z.string().default('true'),
   ENABLE_SEEDERS: z.string().default('true'),
   REDIS_URL: z.string(),
+  APP_VERSION: z.string().optional(),
   // 新增：pg-pool 配置
   PG_POOL_MAX: z.string().default('50'),
   PG_IDLE_MS: z.string().default('3000'),
@@ -63,9 +61,9 @@ const extendedSchema = baseSchema
 const parsed = extendedSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  logger.error('❌ Invalid environment variables!', {
-    errors: parsed.error.flatten().fieldErrors,
-  });
+  // ❗ 使用 console.error 替代 logger，避免循环引用
+  console.error('❌ Invalid environment variables!');
+  console.error(parsed.error.format());
   process.exit(1);
 }
 
