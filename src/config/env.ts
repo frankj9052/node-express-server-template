@@ -33,6 +33,11 @@ const baseSchema = z.object({
   SESSION_COOKIE_NAME: z.string().optional(),
   SESSION_COOKIE_SAMESITE: z.enum(['lax', 'strict', 'none', 'coockie', 'sameSite']).optional(),
   SESSION_TTL_MS: z.string().optional(),
+  JWT_SERVICE_PRIVATE_KEY_PATH: z.string().default('src/modules/service-auth/keys/private.pem'),
+  JWT_SERVICE_PUBLIC_KEY_PATH: z.string().default('src/modules/service-auth/keys/public.pem'),
+  JWT_SERVICE_ISSUER: z.string().default('jurong-auth'),
+  SERVICE_AUTH_JWKS_URL: z.string().default('http://localhost:3100/api//.well-known/jwks.json'),
+  SERVICE_AUTH_ISSUER: z.string().default('jurong-auth'),
 });
 
 // 如果没有 DATABASE_URL，就强制要求 host + user + db

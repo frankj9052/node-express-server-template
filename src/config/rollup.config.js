@@ -30,6 +30,7 @@ const routeEntries = fg.sync('src/modules/**/routes.ts', { dot: false });
 const tsAliasEntries = [
   { find: /^@modules\/(.*)/, replacement: path.resolve('src/modules/$1') },
   { find: /^@common\/(.*)/, replacement: path.resolve('src/modules/common/$1') },
+  { find: /^@\/(.*)/, replacement: path.resolve('src/$1') },
 ];
 
 /** 基础插件集合（供三个 build 共用） */

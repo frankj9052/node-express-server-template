@@ -9,6 +9,10 @@ declare module 'express' {
 
     // currentUser payload
     currentUser?: UserPayload;
+    serviceAuth?: {
+      serviceId: string;
+      scopes: string[];
+    };
   }
 }
 
