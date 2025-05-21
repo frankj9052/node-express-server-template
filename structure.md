@@ -10,9 +10,6 @@
 ├── .prettierrc
 ├── eslint.config.js
 ├── jest.config.cjs
-├── logs
-│   ├── .6d1f175736eeb1d938a9f3a7c77eb600c09aa67d-audit.json
-│   └── 2025-05-12.log
 ├── package-lock.json
 ├── package.json
 ├── scripts
@@ -24,6 +21,7 @@
 │   │   ├── corsOptions.ts
 │   │   ├── data-source.ts
 │   │   ├── env.ts
+│   │   ├── openapiRegistry.ts
 │   │   ├── rollup.config.js
 │   │   └── sessionOptions.ts
 │   ├── infrastructure
@@ -38,10 +36,23 @@
 │   │   ├── requestId.ts
 │   │   └── sessionMiddleware.ts
 │   ├── migrations
-│   │   └── 1746819937753-AutoMigration.ts
+│   │   └── 1747839781001-AutoMigration.ts
 │   ├── modules
 │   │   ├── auth
-│   │   │   └── entities
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── dto
+│   │   │   │   └── login.dto.ts
+│   │   │   ├── entities
+│   │   │   ├── middlewares
+│   │   │   │   └── requireAuth.ts
+│   │   │   ├── routes.ts
+│   │   │   ├── types
+│   │   │   │   └── UserPayload.ts
+│   │   │   └── utils
+│   │   │       └── password.ts
+│   │   ├── codecs
+│   │   │   └── permissionCodec.ts
 │   │   ├── common
 │   │   │   ├── constants
 │   │   │   │   ├── system-actions.ts
@@ -66,14 +77,12 @@
 │   │   │   │   ├── UnauthorizedError.ts
 │   │   │   │   └── ValidationError.ts
 │   │   │   ├── lib
-│   │   │   │   ├── ConditionalSeeder.ts
+│   │   │   │   ├── BaseSeeder.ts
 │   │   │   │   ├── logger.ts
 │   │   │   │   └── safeCreateEnum.ts
+│   │   │   ├── middlewares
+│   │   │   │   └── validateRequest.ts
 │   │   │   └── utils
-│   │   │       ├── buildPermissionName.ts
-│   │   │       ├── buildRoleCode.ts
-│   │   │       ├── buildRolePermissionName.ts
-│   │   │       ├── buildUserOrgRoleName.ts
 │   │   │       ├── loadSeeders.ts
 │   │   │       ├── path.ts
 │   │   │       ├── runSeedersInOrder.ts
@@ -133,8 +142,7 @@
 │   │           └── user.route.test.ts
 │   ├── server.ts
 │   ├── swagger
-│   │   ├── swagger.ts
-│   │   └── swaggerOptions.ts
+│   │   └── swagger.ts
 │   ├── test
 │   │   └── setup.ts
 │   └── types

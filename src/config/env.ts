@@ -30,6 +30,9 @@ const baseSchema = z.object({
   SESSION_IV: z.string().regex(/^[0-9a-f]{32}$/, {
     message: 'SESSION_IV must be a 32-character hex string (16 bytes)',
   }),
+  SESSION_COOKIE_NAME: z.string().optional(),
+  SESSION_COOKIE_SAMESITE: z.enum(['lax', 'strict', 'none', 'coockie', 'sameSite']).optional(),
+  SESSION_TTL_MS: z.string().optional(),
 });
 
 // 如果没有 DATABASE_URL，就强制要求 host + user + db

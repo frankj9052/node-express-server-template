@@ -3,6 +3,7 @@ import { Gender } from '@modules/common/enums/gender.enum';
 import { Honorific } from '@modules/common/enums/honorific.enum';
 import { Entity, Column, Index, BeforeInsert, BeforeUpdate } from 'typeorm';
 import * as argon2 from 'argon2';
+import { v4 as uuidv4 } from 'uuid';
 
 @Entity()
 export class User extends BaseEntity {
@@ -72,4 +73,18 @@ export class User extends BaseEntity {
 
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
+
+  @Column({ type: 'varchar', length: 255 })
+  sessionVersion!: string;
+
+  /**
+   * sessionVersion 用于控制用户所有 session 的失效。
+   * 改变此字段可让旧 session token（或 Redis session）全部失效。
+   */
+  @BeforeInsert()
+  private setDefaultSessionVersion(): void {
+    if (!this.sessionVersion) {
+      this.sessionVersion = uuidv4();
+    }
+  }
 }

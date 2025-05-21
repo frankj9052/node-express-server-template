@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AutoMigration1747408830615 implements MigrationInterface {
-  name = 'AutoMigration1747408830615';
+export class AutoMigration1747839781001 implements MigrationInterface {
+  name = 'AutoMigration1747839781001';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -18,16 +18,6 @@ export class AutoMigration1747408830615 implements MigrationInterface {
     );
     await queryRunner.query(
       `CREATE TABLE "organization" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "created_by" character varying(255), "updated_by" character varying(255), "deleted_by" character varying(255), "name" character varying(255) NOT NULL, "description" character varying(255), "is_active" boolean NOT NULL DEFAULT true, CONSTRAINT "UQ_c21e615583a3ebbb0977452afb0" UNIQUE ("name"), CONSTRAINT "PK_472c1f99a32def1b0abb219cd67" PRIMARY KEY ("id"))`
-    );
-    await queryRunner.query(`CREATE TYPE "public"."user_gender_enum" AS ENUM('male', 'female')`);
-    await queryRunner.query(
-      `CREATE TYPE "public"."user_honorific_enum" AS ENUM('Mr.', 'Mrs.', 'Ms.', 'Miss', 'Dr.', 'Prof.', 'Rev.', 'Sir', 'Madam', 'Lady', 'Lord', 'Capt.', 'Maj.', 'Col.', 'Lt.')`
-    );
-    await queryRunner.query(
-      `CREATE TABLE "user" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "created_by" character varying(255), "updated_by" character varying(255), "deleted_by" character varying(255), "user_name" character varying(100) NOT NULL, "email" character varying(255), "password" character varying(255), "last_name" character varying(100) NOT NULL, "first_name" character varying(100) NOT NULL, "middle_name" character varying(100), "gender" "public"."user_gender_enum", "date_of_birth" TIMESTAMP WITH TIME ZONE, "honorific" "public"."user_honorific_enum", "oauth_provider" character varying(100), "oauth_id" character varying(100), "avatar_image" character varying(255), "email_verified" boolean NOT NULL DEFAULT false, "profile_completed" boolean NOT NULL DEFAULT true, "refresh_token" character varying(255), "is_active" boolean NOT NULL DEFAULT true, CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`
-    );
-    await queryRunner.query(
-      `CREATE UNIQUE INDEX "IDX_e12875dfb3b1d92d7d7c5377e2" ON "user" ("email") `
     );
     await queryRunner.query(
       `CREATE TABLE "permission" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "created_by" character varying(255), "updated_by" character varying(255), "deleted_by" character varying(255), "name" character varying(512) NOT NULL, "description" character varying(255) NOT NULL DEFAULT '', "fields" text array, "condition" jsonb, "is_active" boolean NOT NULL DEFAULT true, "resource_id" uuid NOT NULL, CONSTRAINT "PK_3b8b97af9d9d8807e41e6f48362" PRIMARY KEY ("id"))`
@@ -52,6 +42,12 @@ export class AutoMigration1747408830615 implements MigrationInterface {
     );
     await queryRunner.query(
       `CREATE UNIQUE INDEX "IDX_401d840f6b1957fa74ac631c61" ON "role_permission" ("name") `
+    );
+    await queryRunner.query(
+      `CREATE TABLE "user" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "created_by" character varying(255), "updated_by" character varying(255), "deleted_by" character varying(255), "user_name" character varying(100) NOT NULL, "email" character varying(255), "password" character varying(255), "last_name" character varying(100) NOT NULL, "first_name" character varying(100) NOT NULL, "middle_name" character varying(100), "gender" "public"."user_gender_enum", "date_of_birth" TIMESTAMP WITH TIME ZONE, "honorific" "public"."user_honorific_enum", "oauth_provider" character varying(100), "oauth_id" character varying(100), "avatar_image" character varying(255), "email_verified" boolean NOT NULL DEFAULT false, "profile_completed" boolean NOT NULL DEFAULT true, "refresh_token" character varying(255), "is_active" boolean NOT NULL DEFAULT true, "session_version" character varying(255) NOT NULL, CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`
+    );
+    await queryRunner.query(
+      `CREATE UNIQUE INDEX "IDX_e12875dfb3b1d92d7d7c5377e2" ON "user" ("email") `
     );
     await queryRunner.query(
       `CREATE TABLE "user_organization_role" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "created_by" character varying(255), "updated_by" character varying(255), "deleted_by" character varying(255), "name" character varying(512) NOT NULL, "is_active" boolean NOT NULL DEFAULT true, "user_id" uuid NOT NULL, "organization_id" uuid NOT NULL, "role_id" uuid NOT NULL, CONSTRAINT "PK_af7e0d9e6a5a3001b829ced9500" PRIMARY KEY ("id"))`
@@ -128,6 +124,8 @@ export class AutoMigration1747408830615 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "public"."IDX_b87b3b8bd97142de2c54dd4d67"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_53ae85ce1133f2992bfe242d47"`);
     await queryRunner.query(`DROP TABLE "user_organization_role"`);
+    await queryRunner.query(`DROP INDEX "public"."IDX_e12875dfb3b1d92d7d7c5377e2"`);
+    await queryRunner.query(`DROP TABLE "user"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_401d840f6b1957fa74ac631c61"`);
     await queryRunner.query(`DROP TABLE "role_permission"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_3773d0e32829bdeb0fcf0009ae"`);
@@ -136,10 +134,6 @@ export class AutoMigration1747408830615 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "permission_action"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_240853a0c3353c25fb12434ad3"`);
     await queryRunner.query(`DROP TABLE "permission"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_e12875dfb3b1d92d7d7c5377e2"`);
-    await queryRunner.query(`DROP TABLE "user"`);
-    await queryRunner.query(`DROP TYPE "public"."user_honorific_enum"`);
-    await queryRunner.query(`DROP TYPE "public"."user_gender_enum"`);
     await queryRunner.query(`DROP TABLE "organization"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_4aa35beeebe7073b51be93aae6"`);
     await queryRunner.query(`DROP TABLE "action"`);

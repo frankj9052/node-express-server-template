@@ -1,4 +1,4 @@
 import session from 'express-session';
-import { getSessionOptions } from '../config/sessionOptions';
+import { buildSessionOptions } from '../config/sessionOptions';
 
-export const sessionMiddleware = session(getSessionOptions());
+export const sessionMiddleware = session(buildSessionOptions());

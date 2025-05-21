@@ -3,7 +3,7 @@ import { BaseEntity } from '@modules/common/entities/BaseEntity';
 import { Organization } from './Organization';
 import { User } from '@modules/user/entities/User';
 import { Role } from '@modules/rbac/entities/Role';
-import { buildFullUserOrgRoleName } from '@modules/common/utils/buildUserOrgRoleName';
+import { buildFullUserOrgRoleName } from '@modules/codecs/permissionCodec';
 
 @Entity()
 @Index('IDX_uor_name', ['name'], { unique: true })

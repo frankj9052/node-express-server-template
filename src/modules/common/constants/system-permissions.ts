@@ -1,4 +1,4 @@
-import { buildPermissionName } from '../utils/buildPermissionName';
+import { buildPermissionName } from '@modules/codecs/permissionCodec';
 import { SYSTEM_ACTIONS } from './system-actions';
 import { SYSTEM_RESOURCES } from './system-resources';
 

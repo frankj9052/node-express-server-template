@@ -30,7 +30,6 @@ async function startServer() {
 
     // 3. 创建并配置 Express 应用
     const app = await createApp(); // ← **等待路由全部挂载**
-    app.use(sessionMiddleware); // Redis 就绪后再挂 session
 
     // 4. 启动 HTTP 服务器
     server = app.listen(Number(env.PORT), () => {

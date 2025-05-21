@@ -1,57 +1,59 @@
-import session from 'express-session';
+// src/config/session.ts
+import { CookieOptions, SessionOptions } from 'express-session';
 import { RedisStore } from 'connect-redis';
+import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import { env } from './env';
-import { isRedisAvailable, redisClient } from 'infrastructure/redis';
+import { redisClient, isRedisAvailable } from '../infrastructure/redis';
 
-// 自定义加密器（AES-256-CBC 示例）
-const encrypt = (text: string) => {
+/* ---------- AES-256-CBC 加/解密 ---------- */
+const encrypt = (plain: string) => {
   const cipher = crypto.createCipheriv(
     'aes-256-cbc',
     Buffer.from(env.SESSION_ENCRYPTION_KEY!, 'hex'),
     Buffer.from(env.SESSION_IV!, 'hex')
   );
-  let encrypted = cipher.update(text);
-  encrypted = Buffer.concat([encrypted, cipher.final()]);
-  return encrypted.toString('hex');
+  return Buffer.concat([cipher.update(plain), cipher.final()]).toString('hex');
 };
 
-const decrypt = (text: string) => {
-  const encryptedText = Buffer.from(text, 'hex');
+const decrypt = (hex: string) => {
   const decipher = crypto.createDecipheriv(
     'aes-256-cbc',
     Buffer.from(env.SESSION_ENCRYPTION_KEY!, 'hex'),
     Buffer.from(env.SESSION_IV!, 'hex')
   );
-  let decrypted = decipher.update(encryptedText);
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
-  return decrypted.toString();
+  const buf = Buffer.concat([decipher.update(Buffer.from(hex, 'hex')), decipher.final()]);
+  return buf.toString();
 };
 
-export const getSessionOptions = (): session.SessionOptions => {
-  const useRedis = isRedisAvailable;
+/* ---------- Session 配置构建器 ---------- */
+export const buildSessionOptions = (): SessionOptions => {
+  const store = isRedisAvailable
+    ? new RedisStore({
+        client: redisClient,
+        prefix: 'sess:',
+        disableTouch: true,
+        serializer: {
+          stringify: sess => encrypt(JSON.stringify(sess)),
+          parse: hex => JSON.parse(decrypt(hex)),
+        },
+      })
+    : undefined;
 
   return {
-    store: useRedis
-      ? new RedisStore({
-          client: redisClient,
-          prefix: 'sess:',
-          serializer: {
-            stringify: session => encrypt(JSON.stringify(session)),
-            parse: data => JSON.parse(decrypt(data)),
-          },
-          disableTouch: true,
-        })
-      : undefined, // fallback to MemoryStore
+    name: env.SESSION_COOKIE_NAME ?? 'sid',
+    store,
     secret: env.SESSION_SECRET!,
+    genid: () => uuidv4(),
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     proxy: true,
     cookie: {
       httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      secure: env.NODE_ENV === 'production' ? ('auto' as const) : false,
+      sameSite: (env.SESSION_COOKIE_SAMESITE as CookieOptions['sameSite']) ?? 'lax',
+      maxAge: Number(env.SESSION_TTL_MS) || 1000 * 60 * 60 * 24 * 7,
     },
   };
 };

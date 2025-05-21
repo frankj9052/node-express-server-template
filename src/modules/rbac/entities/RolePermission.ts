@@ -2,7 +2,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, Index, JoinColumn, ManyToOn
 import { Role } from './Role';
 import { Permission } from './Permission';
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
-import { buildRolePermissionName } from '@modules/common/utils/buildRolePermissionName';
+import { buildRolePermissionName } from '@modules/codecs/permissionCodec';
 
 @Entity()
 @Index(['name'], { unique: true })

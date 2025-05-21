@@ -1,7 +1,7 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, Index, ManyToOne } from 'typeorm';
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
 import { Organization } from '@modules/organization/entities/Organization';
-import { buildRoleCode } from '@modules/common/utils/buildRoleCode';
+import { buildRoleCode } from '@modules/codecs/permissionCodec';
 
 @Entity()
 @Index(['name', 'organization'], { unique: true })

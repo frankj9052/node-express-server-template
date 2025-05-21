@@ -1,10 +1,11 @@
 // src/modules/auth/routes.ts
 import { Router } from 'express';
-import { loginController } from './auth.controller';
+import { currentUserController, loginController } from './auth.controller';
 import { validateRequest } from '@modules/common/middlewares/validateRequest';
 import { loginSchema } from './dto/login.dto';
 import { registry } from 'config/openapiRegistry';
 import { z } from 'zod';
+import { requireAuth } from './middlewares/requireAuth';
 
 const router = Router();
 
@@ -49,6 +50,7 @@ registry.registerPath({
   },
 });
 router.post('/auth/login', validateRequest({ body: loginSchema }), loginController);
+router.get('/auth/current-user', requireAuth, currentUserController);
 
 export function register(parent: Router) {
   parent.use('/', router);

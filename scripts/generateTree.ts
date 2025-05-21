@@ -14,7 +14,7 @@ const outputPath = resolve(__dirname, '../structure.md');
 // ✅ 配置：自定义排除规则
 const exclude = {
   // 顶层排除目录
-  topLevelDirs: ['dist', 'node_modules', '.git', '.cache', '.next'],
+  topLevelDirs: ['dist', 'node_modules', '.git', '.cache', '.next', 'logs'],
   // 精细排除的路径（相对于targetDir）
   exactPaths: ['.husky/_'], // 完整排除.husky/_下的所有文件
 };

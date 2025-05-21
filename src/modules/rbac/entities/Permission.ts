@@ -1,7 +1,7 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, Index, ManyToOne } from 'typeorm';
 import { Resource } from './Resource';
 import { BaseEntity } from '@modules/common/entities/BaseEntity';
-import { buildPermissionName } from '@modules/common/utils/buildPermissionName';
+import { buildPermissionName } from '@modules/codecs/permissionCodec';
 
 @Entity()
 @Index(['name'], { unique: true })
