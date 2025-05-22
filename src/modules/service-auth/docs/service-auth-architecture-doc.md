@@ -10,7 +10,7 @@
 - 暴露标准 `.well-known/jwks.json` 接口供所有服务验证 JWT
 - 支持 Redis 缓存 Token，提高性能与容错
 
-------
+---
 
 ## 📦 模块结构
 
@@ -37,7 +37,7 @@ src/modules/service-auth/
     └── openapi.ts               # OpenAPI 路由文档
 ```
 
-------
+---
 
 ## 🔐 JWT 签发规范
 
@@ -67,7 +67,7 @@ src/modules/service-auth/
 }
 ```
 
-------
+---
 
 ## 🔗 关键接口说明
 
@@ -82,7 +82,7 @@ src/modules/service-auth/
 - 返回当前公钥（用于验证 RS256 token）
 - 示例用途：子服务拉取验证用公钥
 
-------
+---
 
 ## 🧠 服务端验证方式对比
 
@@ -91,7 +91,7 @@ src/modules/service-auth/
 | 本地验证（公钥）   | 主服务或内嵌式服务       | `requireServiceAuth.ts`                      |
 | 远程 JWKS 拉取验证 | 微服务 / 网关 / API Mesh | `verifyWithJwks.ts` + `requireServiceJwt.ts` |
 
-------
+---
 
 ## 🔁 Redis 缓存策略
 
@@ -100,7 +100,7 @@ src/modules/service-auth/
 - 后续使用缓存，直到即将过期再刷新
 - 防止服务重启重复登录，节约请求开销
 
-------
+---
 
 ## ✅ 拓展建议
 
@@ -111,7 +111,7 @@ src/modules/service-auth/
 | 多租户隔离          | JWT 增加 `tenantId` + scope 拓展 |
 | Web 控制台管理      | 管理每个服务的 scopes / secret   |
 
-------
+---
 
 ## 📌 当前环境配置说明
 
@@ -121,7 +121,7 @@ JWT_SERVICE_PUBLIC_KEY_PATH=src/modules/service-auth/keys/public.pem
 JWT_SERVICE_ISSUER=https://auth.noqclinic.dev
 ```
 
-------
+---
 
 ## 📚 依赖库
 
@@ -130,7 +130,7 @@ JWT_SERVICE_ISSUER=https://auth.noqclinic.dev
 - `axios`：服务间请求
 - `redis`：token 缓存
 
-------
+---
 
 ## 🧪 推荐测试方式
 

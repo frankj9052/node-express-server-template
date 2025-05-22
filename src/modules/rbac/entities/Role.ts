@@ -19,7 +19,7 @@ export class Role extends BaseEntity {
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
 
-  @ManyToOne(() => Organization, { nullable: false, onDelete: 'SET NULL' })
+  @ManyToOne(() => Organization, { nullable: false, onDelete: 'CASCADE' })
   organization!: Organization;
 
   @BeforeInsert()

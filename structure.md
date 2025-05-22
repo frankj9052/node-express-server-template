@@ -121,6 +121,27 @@
 │   │   │   │   └── 06-rolePermission-prod.seed.ts
 │   │   │   └── __test__
 │   │   │       └── rbac.route.test.ts
+│   │   ├── service-auth
+│   │   │   ├── client
+│   │   │   │   ├── RedisServiceTokenStore.ts
+│   │   │   │   └── ServiceClient.ts
+│   │   │   ├── docs
+│   │   │   │   ├── openapi.ts
+│   │   │   │   └── service-auth-architecture-doc.md
+│   │   │   ├── jwks
+│   │   │   │   └── jwks.service.ts
+│   │   │   ├── keys
+│   │   │   │   ├── private.pem
+│   │   │   │   └── public.pem
+│   │   │   ├── middlewares
+│   │   │   │   ├── requireServiceAuth.ts
+│   │   │   │   └── requireServiceJwt.ts
+│   │   │   ├── routes.ts
+│   │   │   ├── serviceAuth.controller.ts
+│   │   │   ├── serviceToken.service.ts
+│   │   │   └── utils
+│   │   │       ├── keyLoader.ts
+│   │   │       └── verifyWithJwks.ts
 │   │   ├── test
 │   │   │   ├── routes.ts
 │   │   │   ├── test.controller.ts
